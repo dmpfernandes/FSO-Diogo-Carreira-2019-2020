@@ -1,10 +1,9 @@
-
 public class BD {
 	
 	private String nomeRobot,consola;
 	private boolean onOff, debug;
 	private int raio,angulo,distancia;
-	
+	private MyRobotLego robot;
 	
 	public BD() {
 		this.nomeRobot = new String("sopa");
@@ -62,8 +61,4 @@ public class BD {
 	public void setDistancia(int distancia) {
 		this.distancia = distancia;
 	}
-	
-	
-	
-	
 }
