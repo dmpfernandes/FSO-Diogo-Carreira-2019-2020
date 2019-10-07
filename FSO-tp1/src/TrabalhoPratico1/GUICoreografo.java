@@ -34,10 +34,23 @@ public class GUICoreografo extends JFrame {
 	 * Create the frame.
 	 */
 	public GUICoreografo() {
-		Mensagem msg = new Mensagem(0,1);
+		Mensagem msg = new Mensagem(2,3);
+		Mensagem msg1 = new Mensagem(1,2);
+		Mensagem msg2 = new Mensagem(2,3);
+		Mensagem msg3 = new Mensagem(3,4);
+		Mensagem msg4 = new Mensagem(4,5);
+		
 		CanalComunicacoes cc = new CanalComunicacoes("teste.txt");
-		cc.escrever(msg);
-		System.out.println(cc.ler());
+		cc.put(msg);
+		cc.put(msg1);
+		cc.put(msg2);
+		cc.put(msg3);
+		cc.put(msg4);
+		System.out.println(cc.get());
+		System.out.println(cc.get());
+		System.out.println(cc.get());
+		System.out.println(cc.get());
+		System.out.println(cc.get());
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
