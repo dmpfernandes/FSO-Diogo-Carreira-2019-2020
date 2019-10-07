@@ -1,11 +1,10 @@
 
 public class BD {
-	
-	private String nomeRobot,consola;
+
+	private String nomeRobot, consola;
 	private boolean onOff, debug;
-	private int raio,angulo,distancia;
-	
-	
+	private int raio, angulo, distancia;
+
 	public BD() {
 		this.nomeRobot = new String("sopa");
 		this.consola = new String("");
@@ -15,19 +14,23 @@ public class BD {
 		this.angulo = 90;
 		this.distancia = 20;
 	}
-	
+
 	public String getNomeRobot() {
 		return nomeRobot;
 	}
+
 	public void setNomeRobot(String nomeRobot) {
 		this.nomeRobot = nomeRobot;
 	}
+
 	public String getConsola() {
 		return consola;
 	}
+
 	public void setConsola(String consola) {
 		this.consola = consola;
 	}
+
 	public boolean isOnOff() {
 		return onOff;
 	}
@@ -47,23 +50,25 @@ public class BD {
 	public int getRaio() {
 		return raio;
 	}
+
 	public void setRaio(int raio) {
 		this.raio = raio;
 	}
+
 	public int getAngulo() {
 		return angulo;
 	}
+
 	public void setAngulo(int angulo) {
 		this.angulo = angulo;
 	}
+
 	public int getDistancia() {
 		return distancia;
 	}
+
 	public void setDistancia(int distancia) {
 		this.distancia = distancia;
 	}
-	
-	
-	
-	
+
 }

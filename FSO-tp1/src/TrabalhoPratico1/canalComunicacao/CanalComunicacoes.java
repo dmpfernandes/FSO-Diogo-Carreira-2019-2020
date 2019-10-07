@@ -10,7 +10,7 @@ import java.nio.channels.FileChannel;
 import java.util.Arrays;
 
 public class CanalComunicacoes {
-	
+
 	private File file;
 	private FileChannel filechannel;
 	private static MappedByteBuffer map;
@@ -27,25 +27,23 @@ public class CanalComunicacoes {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String get() {
 		int pos = map.position();
 		map.position(posGet);
 		IntBuffer mapBuffer = map.asIntBuffer();
 		int numero = mapBuffer.get();
 		int ordem = mapBuffer.get();
-		posGet+=8;
+		posGet += 8;
 		map.position(pos);
-		return "numero: "+numero+"  ordem: "+ordem;
+		return "numero: " + numero + "  ordem: " + ordem;
 	}
-	
+
 	public void put(Mensagem msg) {
-		
+
 		ByteBuffer bb = ByteBuffer.allocate(8).putInt(msg.getNumero()).putInt(msg.getOrdem());
 		map.put(bb.array());
-		
+
 	}
-	
-	
 
 }

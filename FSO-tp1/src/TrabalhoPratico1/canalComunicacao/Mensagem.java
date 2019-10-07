@@ -1,10 +1,10 @@
 package TrabalhoPratico1.canalComunicacao;
 
 public class Mensagem {
-	
+
 	int numero;
 	int ordem;
-	
+
 	public Mensagem(int numero, int ordem) {
 		this.numero = numero;
 		this.ordem = ordem;
@@ -26,5 +26,4 @@ public class Mensagem {
 		this.ordem = ordem;
 	}
 
-	
 }
