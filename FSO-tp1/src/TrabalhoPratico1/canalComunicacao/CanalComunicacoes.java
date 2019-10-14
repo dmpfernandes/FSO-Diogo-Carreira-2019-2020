@@ -15,7 +15,10 @@ public class CanalComunicacoes {
 	private FileChannel filechannel;
 	private static MappedByteBuffer map;
 	final static int MAX_BUFFER = 256;
-	private int posGet = 0;
+	private static int posGet = 0;
+	
+	private int disponiveis = 0;
+	private static int posPut = 0;
 
 	public CanalComunicacoes(String nomeDoFicheiro) {
 		try {
@@ -27,23 +30,55 @@ public class CanalComunicacoes {
 			e.printStackTrace();
 		}
 	}
-
+	
+	
 	public String get() {
-		int pos = map.position();
-		map.position(posGet);
+		if(disponiveis == 0) {
+			return null;
+		}
+		int pos = posPut - disponiveis;
+		if(pos < 0) {
+			pos += MAX_BUFFER;
+		}
+		
+		
+		map.position(pos);
 		IntBuffer mapBuffer = map.asIntBuffer();
 		int numero = mapBuffer.get();
 		int ordem = mapBuffer.get();
-		posGet += 8;
-		map.position(pos);
-		return "numero: " + numero + "  ordem: " + ordem;
+		
+		disponiveis -= 8;
+		
+		return "numero: "+numero+"  ordem: "+ordem;
+		
+
 	}
-
-	public void put(Mensagem msg) {
-
-		ByteBuffer bb = ByteBuffer.allocate(8).putInt(msg.getNumero()).putInt(msg.getOrdem());
-		map.put(bb.array());
-
+	
+	public boolean put(Mensagem msg) {
+		
+		if(disponiveis < MAX_BUFFER){
+			if(posPut >= MAX_BUFFER) {
+				posPut=0;
+			}
+			map.position(posPut);
+			ByteBuffer bb = ByteBuffer.allocate(8).putInt(msg.getNumero()).putInt(msg.getOrdem());
+			map.put(bb.duplicate().array());
+			posPut += 8;
+			disponiveis += 8;
+			try {
+				
+				filechannel.write((ByteBuffer)bb.flip());
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				
+				e.printStackTrace();
+			}
+			return true;
+		}
+		return false;
+		
+		
 	}
 
 }
