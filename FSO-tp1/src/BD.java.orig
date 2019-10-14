@@ -2,8 +2,14 @@ public class BD {
 
 	private String nomeRobot, consola;
 	private boolean onOff, debug;
-	private int raio, angulo, distancia;
+<<<<<<< .merge_file_EtFA6k
+	private int raio,angulo,distancia;
 	private MyRobotLego robot;
+	
+=======
+	private int raio, angulo, distancia;
+
+>>>>>>> .merge_file_kTpXmV
 	public BD() {
 		this.nomeRobot = new String("sopa");
 		this.consola = new String("");
@@ -69,4 +75,8 @@ public class BD {
 	public void setDistancia(int distancia) {
 		this.distancia = distancia;
 	}
+<<<<<<< .merge_file_EtFA6k
+=======
+
+>>>>>>> .merge_file_kTpXmV
 }
