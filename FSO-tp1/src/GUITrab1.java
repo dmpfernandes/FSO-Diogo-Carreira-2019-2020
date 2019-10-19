@@ -13,6 +13,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import TrabalhoPratico1.canalComunicacao.CanalComunicacoes;
+import TrabalhoPratico1.canalComunicacao.Mensagem;
+
 public class GUITrab1 extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -23,6 +26,7 @@ public class GUITrab1 extends JFrame {
 	private JTextField tfAngulo;
 	private JTextField tfDistancia;
 	private JTextArea taConsole;
+	private JCheckBox chckbxAtivarCoreagrafo;
 
 	private BD bd;
 	private MyRobotLego robot;
@@ -32,6 +36,8 @@ public class GUITrab1 extends JFrame {
 	private JButton btnRetaguarda;
 	private JButton btnFrente;
 	private JButton btnParar;
+	
+	private CanalComunicacoes canal;
 
 	/**
 	 * Launch the application.
@@ -55,6 +61,9 @@ public class GUITrab1 extends JFrame {
 	public GUITrab1() {
 		bd = new BD();
 		robot = new MyRobotLego();
+		canal = new CanalComunicacoes("teste.txt");
+		
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 450);
 		contentPane = new JPanel();
@@ -82,6 +91,7 @@ public class GUITrab1 extends JFrame {
 		rdbtnOnOff.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				bd.setOnOff(rdbtnOnOff.isSelected());
+			
 				myPrint("On/Off: " + bd.isOnOff());
 				updateButtons(false);
 			}
@@ -164,6 +174,7 @@ public class GUITrab1 extends JFrame {
 		btnParar = new JButton("Parar");
 		btnParar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				robot.parar();
 				myPrint("Parar Assincrono: true");
 			}
 		});
@@ -175,6 +186,7 @@ public class GUITrab1 extends JFrame {
 		btnRetaguarda = new JButton("Retaguarda");
 		btnRetaguarda.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				robot.reta(-bd.getDistancia());
 				myPrint("reta: " + -bd.getDistancia());
 			}
 		});
@@ -184,6 +196,7 @@ public class GUITrab1 extends JFrame {
 		btnDireita = new JButton("Direita");
 		btnDireita.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				robot.curvarDireita(bd.getRaio(), bd.getAngulo());
 				myPrint("Curva Direita \n raio: " + bd.getRaio() + " angulo: " + bd.getAngulo());
 			}
 		});
@@ -193,6 +206,7 @@ public class GUITrab1 extends JFrame {
 		btnEsquerda = new JButton("Esquerda");
 		btnEsquerda.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
 				myPrint("Curva Esquerda \n raio: " + bd.getRaio() + " angulo: " + bd.getAngulo());
 			}
 		});
@@ -213,6 +227,18 @@ public class GUITrab1 extends JFrame {
 		taConsole.setEditable(false);
 		taConsole.setBounds(12, 238, 420, 170);
 		contentPane.add(taConsole);
+		
+		 chckbxAtivarCoreagrafo = new JCheckBox("Ativar Coreagrafo");
+		chckbxAtivarCoreagrafo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(chckbxAtivarCoreagrafo.isSelected()) {
+					convertMsgToCommand();
+				}
+				
+			}
+		});
+		chckbxAtivarCoreagrafo.setBounds(293, 195, 149, 23);
+		contentPane.add(chckbxAtivarCoreagrafo);
 		
 		updateButtons(true);
 	}
@@ -240,7 +266,63 @@ public class GUITrab1 extends JFrame {
 			System.out.println("Nome do Robot: " + bd.getNomeRobot());
 			robot.startRobot(bd.getNomeRobot());
 		} else {
-			robot.stopRobot();
+			robot.closeRobot();
 		}
 	}
+	
+	public void convertMsgToCommand(){
+		Mensagem msg = canal.get();
+		if(msg != null) {
+			int ordem = msg.getOrdem();
+			switch(ordem) {
+			case 0:
+				robot.parar();
+				convertMsgToCommand();
+				break;
+			case 1:
+				robot.reta(bd.getDistancia());
+				convertMsgToCommand();
+				break;
+			case 2:
+				robot.reta(-bd.getDistancia());
+				convertMsgToCommand();
+				break;
+			case 3:
+				robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
+				convertMsgToCommand();
+				break;
+			case 4:
+				robot.curvarDireita(bd.getRaio(), bd.getAngulo());
+				convertMsgToCommand();
+				break;
+			}
+		}
+		else {
+			chckbxAtivarCoreagrafo.setSelected(false);
+		}
+		
+		
+	}
+	
+//	enum Actions {
+//	    PARAR (0),
+//	    RETA (1),
+//	    RETAGUARDA (2),
+//		CURVARESQUERDA (3),
+//		CURVARDIREITA (4);
+//		
+//		
+//		
+//		int ordem;
+//		
+//		
+//		Actions(int ordem) {
+//	        this.ordem = ordem;
+//	    }
+//		
+//		Actions getAction( int ordem){
+//			return Actions.values()[ordem];
+//		}
+//		
+//	  }
 }

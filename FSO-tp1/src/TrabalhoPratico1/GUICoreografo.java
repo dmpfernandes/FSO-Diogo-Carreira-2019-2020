@@ -5,9 +5,10 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import com.sun.glass.ui.Robot;
+
 
 import TrabalhoPratico1.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico1.canalComunicacao.Mensagem;
@@ -16,6 +17,8 @@ import javax.swing.JTextField;
 import javax.swing.JCheckBox;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.awt.event.ActionEvent;
 
@@ -26,13 +29,14 @@ public class GUICoreografo extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField txtFieldComandos;
+	private JTextArea txtFieldComandos;
 	private JCheckBox chckbxAtivar;
 	private JButton btnGerar16Comandos, btnGerar1Comando, btnGerar32Comandos, btnGerarComandosIlimitados,
 			btnPararComandos;
 	private CanalComunicacoes cc;
 	private boolean parar;
 	private int numero;
+	private List<String> ultimosComandos;
 
 	/**
 	 * Launch the application.
@@ -53,6 +57,7 @@ public class GUICoreografo extends JFrame {
 	public void initializeVariables() {
 		parar = false;
 		numero = -1;
+		ultimosComandos = new ArrayList<String>();
 	}
 
 	/**
@@ -61,6 +66,10 @@ public class GUICoreografo extends JFrame {
 	public GUICoreografo() {
 
 		cc = new CanalComunicacoes("teste.txt");
+		System.out.println(cc.get());
+		
+		
+		
 		initializeVariables();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -73,7 +82,7 @@ public class GUICoreografo extends JFrame {
 		lblUltmosComandos.setBounds(6, 23, 155, 16);
 		contentPane.add(lblUltmosComandos);
 
-		txtFieldComandos = new JTextField();
+		txtFieldComandos = new JTextArea();
 		txtFieldComandos.setBounds(6, 51, 190, 206);
 		contentPane.add(txtFieldComandos);
 		txtFieldComandos.setColumns(10);
@@ -88,6 +97,7 @@ public class GUICoreografo extends JFrame {
 		contentPane.add(chckbxAtivar);
 
 		btnGerar16Comandos = new JButton("Gerar 16 comandos");
+		btnGerar16Comandos.setEnabled(false);
 		btnGerar16Comandos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				generateCommands(16);
@@ -97,6 +107,7 @@ public class GUICoreografo extends JFrame {
 		contentPane.add(btnGerar16Comandos);
 
 		btnGerar1Comando = new JButton("Gerar 1 comando");
+		btnGerar1Comando.setEnabled(false);
 		btnGerar1Comando.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				generateCommands(1);
@@ -106,6 +117,7 @@ public class GUICoreografo extends JFrame {
 		contentPane.add(btnGerar1Comando);
 
 		btnGerar32Comandos = new JButton("Gerar 32 comandos");
+		btnGerar32Comandos.setEnabled(false);
 		btnGerar32Comandos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				generateCommands(32);
@@ -115,6 +127,7 @@ public class GUICoreografo extends JFrame {
 		contentPane.add(btnGerar32Comandos);
 
 		btnGerarComandosIlimitados = new JButton("Gerar comandos ilimitados");
+		btnGerarComandosIlimitados.setEnabled(false);
 		btnGerarComandosIlimitados.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				generateCommands(-1);
@@ -134,8 +147,9 @@ public class GUICoreografo extends JFrame {
 	}
 
 	private void stopCommands() {
+		numero++;
 		parar = true;
-		cc.put(new Mensagem(numero++, 0));
+		cc.put(new Mensagem(numero, 0));
 	}
 
 	private void generateCommands(int i) {
@@ -147,8 +161,18 @@ public class GUICoreografo extends JFrame {
 			for (int j = 0; j < i; j++) {
 				Mensagem msg = generateRandomCommand();
 				cc.put(msg);
-				txtFieldComandos.setText("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
+		
+				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
+				
+				
+				
 			}
+			String x="";
+			for (int j = ultimosComandos.size()-1; j >= ultimosComandos.size()-10 ; j--) {
+				x+="\n"+ultimosComandos.get(j);
+			}
+			txtFieldComandos.setText(x);
+			
 		}
 	}
 
@@ -161,8 +185,8 @@ public class GUICoreografo extends JFrame {
 
 	protected void changeButtons() {
 		btnGerar16Comandos.setEnabled(!btnGerar16Comandos.isEnabled());
-		btnGerar1Comando.setEnabled(!btnGerar16Comandos.isEnabled());
-		btnGerar32Comandos.setEnabled(!btnGerar16Comandos.isEnabled());
-		btnGerarComandosIlimitados.setEnabled(!btnGerar16Comandos.isEnabled());
+		btnGerar1Comando.setEnabled(!btnGerar1Comando.isEnabled());
+		btnGerar32Comandos.setEnabled(!btnGerar32Comandos.isEnabled());
+		btnGerarComandosIlimitados.setEnabled(!btnGerarComandosIlimitados.isEnabled());
 	}
 }

@@ -32,7 +32,7 @@ public class CanalComunicacoes {
 	}
 	
 	
-	public String get() {
+	public Mensagem get() {
 		if(disponiveis == 0) {
 			return null;
 		}
@@ -41,7 +41,6 @@ public class CanalComunicacoes {
 			pos += MAX_BUFFER;
 		}
 		
-		
 		map.position(pos);
 		IntBuffer mapBuffer = map.asIntBuffer();
 		int numero = mapBuffer.get();
@@ -49,7 +48,7 @@ public class CanalComunicacoes {
 		
 		disponiveis -= 8;
 		
-		return "numero: "+numero+"  ordem: "+ordem;
+		return new Mensagem(numero,ordem);
 		
 
 	}

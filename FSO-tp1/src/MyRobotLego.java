@@ -10,7 +10,7 @@ public class MyRobotLego {
 		robot.OpenEV3(nomeRobot);
 	}
 	
-	public void stopRobot() {
+	public void closeRobot() {
 		robot.CloseEV3();
 	}
 	
@@ -18,5 +18,21 @@ public class MyRobotLego {
 		robot.Reta(distancia);
 		robot.Parar(false);
 	}
+	
+	public void curvarEsquerda(int raio, int angulo) {
+		robot.CurvarEsquerda(raio, angulo);
+		robot.Parar(false);
+	}
+	
+	public void curvarDireita(int raio, int angulo) {
+		robot.CurvarDireita(raio, angulo);
+		robot.Parar(false);
+	}
+	
+	public void parar() {
+		robot.Parar(true);
+	}
+	
+	
 	
 }
