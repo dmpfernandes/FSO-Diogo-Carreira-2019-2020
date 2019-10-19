@@ -36,7 +36,7 @@ public class GUICoreografo extends JFrame {
 	private CanalComunicacoes cc;
 	private boolean parar;
 	private int numero;
-	private List<String> ultimosComandos;
+	private BD bd;
 
 	/**
 	 * Launch the application.
@@ -57,19 +57,15 @@ public class GUICoreografo extends JFrame {
 	public void initializeVariables() {
 		parar = false;
 		numero = -1;
-		ultimosComandos = new ArrayList<String>();
+		bd = new BD();
+		cc = new CanalComunicacoes("teste.txt", bd, txtFieldComandos);
 	}
 
 	/**
 	 * Create the frame.
 	 */
 	public GUICoreografo() {
-
-		cc = new CanalComunicacoes("teste.txt");
-		System.out.println(cc.get());
-		
-		
-		
+	
 		initializeVariables();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -100,7 +96,7 @@ public class GUICoreografo extends JFrame {
 		btnGerar16Comandos.setEnabled(false);
 		btnGerar16Comandos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				generateCommands(16);
+				cc.generateCommands(16);
 			}
 		});
 		btnGerar16Comandos.setBounds(208, 92, 213, 29);
@@ -110,7 +106,7 @@ public class GUICoreografo extends JFrame {
 		btnGerar1Comando.setEnabled(false);
 		btnGerar1Comando.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				generateCommands(1);
+				cc.generateCommands(1);
 			}
 		});
 		btnGerar1Comando.setBounds(208, 51, 213, 29);
@@ -120,7 +116,7 @@ public class GUICoreografo extends JFrame {
 		btnGerar32Comandos.setEnabled(false);
 		btnGerar32Comandos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				generateCommands(32);
+				cc.generateCommands(32);
 			}
 		});
 		btnGerar32Comandos.setBounds(208, 128, 213, 29);
@@ -130,7 +126,7 @@ public class GUICoreografo extends JFrame {
 		btnGerarComandosIlimitados.setEnabled(false);
 		btnGerarComandosIlimitados.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				generateCommands(-1);
+				cc.generateCommands(-1);
 			}
 		});
 		btnGerarComandosIlimitados.setBounds(208, 169, 213, 29);
@@ -148,39 +144,8 @@ public class GUICoreografo extends JFrame {
 
 	private void stopCommands() {
 		numero++;
-		parar = true;
+		bd.setParar(true);
 		cc.put(new Mensagem(numero, 0));
-	}
-
-	private void generateCommands(int i) {
-		if (i == -1) {
-			while (!parar) {
-				cc.put(generateRandomCommand());
-			}
-		} else {
-			for (int j = 0; j < i; j++) {
-				Mensagem msg = generateRandomCommand();
-				cc.put(msg);
-		
-				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
-				
-				
-				
-			}
-			String x="";
-			for (int j = ultimosComandos.size()-1; j >= ultimosComandos.size()-10 ; j--) {
-				x+="\n"+ultimosComandos.get(j);
-			}
-			txtFieldComandos.setText(x);
-			
-		}
-	}
-
-	private Mensagem generateRandomCommand() {
-		numero++;
-		Random r = new Random();
-		int ordem = r.nextInt(4);
-		return new Mensagem(numero, ordem);
 	}
 
 	protected void changeButtons() {
