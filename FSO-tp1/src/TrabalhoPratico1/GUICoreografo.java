@@ -58,7 +58,7 @@ public class GUICoreografo extends JFrame {
 		parar = false;
 		numero = -1;
 		bd = new BD();
-		cc = new CanalComunicacoes("teste.txt", bd, txtFieldComandos);
+		cc = new CanalComunicacoes("teste.txt", bd, this);
 	}
 
 	/**
@@ -87,6 +87,7 @@ public class GUICoreografo extends JFrame {
 		chckbxAtivar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				changeButtons();
+				cc.blockDancarino();
 			}
 		});
 		chckbxAtivar.setBounds(212, 19, 128, 23);
@@ -153,5 +154,9 @@ public class GUICoreografo extends JFrame {
 		btnGerar1Comando.setEnabled(!btnGerar1Comando.isEnabled());
 		btnGerar32Comandos.setEnabled(!btnGerar32Comandos.isEnabled());
 		btnGerarComandosIlimitados.setEnabled(!btnGerarComandosIlimitados.isEnabled());
+	}
+
+	public JTextArea getTxtFieldComandos() {
+		return txtFieldComandos;
 	}
 }

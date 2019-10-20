@@ -1,3 +1,4 @@
+package TrabalhoPratico1;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -16,7 +17,7 @@ import javax.swing.border.EmptyBorder;
 import TrabalhoPratico1.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico1.canalComunicacao.Mensagem;
 
-public class GUITrab1 extends JFrame {
+public class GUIDancarino extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	// ficamos com o EV8, passe de conexao 1234
@@ -46,7 +47,7 @@ public class GUITrab1 extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUITrab1 frame = new GUITrab1();
+					GUIDancarino frame = new GUIDancarino();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,10 +59,9 @@ public class GUITrab1 extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public GUITrab1() {
+	public GUIDancarino() {
 		bd = new BD();
-		robot = new MyRobotLego();
-		canal = new CanalComunicacoes("teste.txt");
+		canal = new CanalComunicacoes("teste.txt", bd);
 		
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -136,6 +136,7 @@ public class GUITrab1 extends JFrame {
 		tfAngulo.setBounds(181, 39, 60, 19);
 		contentPane.add(tfAngulo);
 		tfAngulo.setColumns(10);
+		
 
 		JLabel lblAngulo = new JLabel("Angulo:");
 		lblAngulo.setBounds(125, 41, 70, 15);
@@ -251,6 +252,7 @@ public class GUITrab1 extends JFrame {
 	}
 
 	public void updateButtons(boolean firstStart) {
+		robot = bd.getRobot();
 		btnDireita.setEnabled(bd.isOnOff());
 		btnEsquerda.setEnabled(bd.isOnOff());
 		btnFrente.setEnabled(bd.isOnOff());
@@ -264,7 +266,7 @@ public class GUITrab1 extends JFrame {
 	public void robotConnection() {
 		if(bd.isOnOff()) {
 			System.out.println("Nome do Robot: " + bd.getNomeRobot());
-			robot.startRobot(bd.getNomeRobot());
+			robot.startRobot();
 		} else {
 			robot.closeRobot();
 		}

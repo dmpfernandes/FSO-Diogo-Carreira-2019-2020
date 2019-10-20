@@ -6,7 +6,9 @@ public class BD {
 	private boolean onOff, debug;
 	private int raio, angulo, distancia;
 	private MyRobotLego robot;
-	private boolean parar;
+	private boolean parar, coreografoRunning;
+	
+	
 	public BD() {
 		this.nomeRobot = new String("");
 		this.consola = new String("");
@@ -15,7 +17,8 @@ public class BD {
 		this.raio = 0;
 		this.angulo = 90;
 		this.distancia = 20;
-		this.robot = new MyRobotLego();
+		this.robot = new MyRobotLego(nomeRobot);
+		this.coreografoRunning = false;
 	}
 
 	public String getNomeRobot() {
@@ -83,5 +86,17 @@ public class BD {
 
 	public boolean getParar() {
 		return this.parar;
+	}
+	
+	public MyRobotLego getRobot(){
+		return robot;
+	}
+
+	public boolean isCoreografoRunning() {
+		return coreografoRunning;
+	}
+
+	public void setCoreografoRunning(boolean coreografoRunning) {
+		this.coreografoRunning = coreografoRunning;
 	}
 }
