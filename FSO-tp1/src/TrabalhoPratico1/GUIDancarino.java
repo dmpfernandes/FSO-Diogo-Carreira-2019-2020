@@ -31,6 +31,8 @@ public class GUIDancarino extends JFrame {
 
 	private BD bd;
 	private MyRobotLego robot;
+	private GUICoreografo guiCoregrafo;
+	
 	private JCheckBox chckbxDebug;
 	private JButton btnEsquerda;
 	private JButton btnDireita;
@@ -105,7 +107,6 @@ public class GUIDancarino extends JFrame {
 				try {
 					bd.setRaio(Integer.parseInt(tfRaio.getText()));
 				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
 					tfRaio.setText(String.valueOf(bd.getRaio()));
 				}
 				myPrint("raio: " + bd.getRaio());
@@ -126,7 +127,6 @@ public class GUIDancarino extends JFrame {
 				try {
 					bd.setAngulo(Integer.parseInt(tfAngulo.getText()));
 				} catch (NumberFormatException e) {
-					// TODO Auto-generated catch block
 					tfAngulo.setText(String.valueOf(bd.getAngulo()));
 				}
 				myPrint("angulo: " + bd.getAngulo());
@@ -231,8 +231,12 @@ public class GUIDancarino extends JFrame {
 		
 		 chckbxAtivarCoreagrafo = new JCheckBox("Ativar Coreagrafo");
 		chckbxAtivarCoreagrafo.addActionListener(new ActionListener() {
+
 			public void actionPerformed(ActionEvent arg0) {
 				if(chckbxAtivarCoreagrafo.isSelected()) {
+					guiCoregrafo = new GUICoreografo(canal);
+					guiCoregrafo.setVisible(true);
+					
 					convertMsgToCommand();
 				}
 				
@@ -279,22 +283,31 @@ public class GUIDancarino extends JFrame {
 			switch(ordem) {
 			case 0:
 				robot.parar();
+				System.out.println("parei");
 				convertMsgToCommand();
 				break;
 			case 1:
 				robot.reta(bd.getDistancia());
+				System.out.println("reta");
+
 				convertMsgToCommand();
 				break;
 			case 2:
 				robot.reta(-bd.getDistancia());
+				System.out.println("atras");
+
 				convertMsgToCommand();
 				break;
 			case 3:
 				robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
+				System.out.println("curva esquerda");
+
 				convertMsgToCommand();
 				break;
 			case 4:
 				robot.curvarDireita(bd.getRaio(), bd.getAngulo());
+				System.out.println("curva direita");
+
 				convertMsgToCommand();
 				break;
 			}

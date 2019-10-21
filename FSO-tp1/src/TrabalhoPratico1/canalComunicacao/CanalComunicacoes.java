@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -30,29 +31,16 @@ public class CanalComunicacoes extends Thread {
 	private static int posPut = 0;
 
 	private List<String> ultimosComandos;
-	private GUICoreografo gui;
-
-	public CanalComunicacoes(String nomeDoFicheiro, BD bd, GUICoreografo gui) {
-		try {
-			this.file = new File(nomeDoFicheiro);
-			this.file.createNewFile();
-			this.bd = bd;
-			this.gui = gui;
-			this.numMsgsNoDisplay = 0;
-			filechannel = new RandomAccessFile(this.file, "rw").getChannel();
-			map = filechannel.map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
-			ultimosComandos = new LinkedList<String>();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
 
 	public CanalComunicacoes(String nomeDoFicheiro, BD bd) {
 		try {
 			this.file = new File(nomeDoFicheiro);
+			this.file.createNewFile();
 			this.bd = bd;
+			this.numMsgsNoDisplay = 0;
 			filechannel = new RandomAccessFile(this.file, "rw").getChannel();
 			map = filechannel.map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
+			ultimosComandos = new LinkedList<String>();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -71,7 +59,7 @@ public class CanalComunicacoes extends Thread {
 		IntBuffer mapBuffer = map.asIntBuffer();
 		int numero = mapBuffer.get();
 		int ordem = mapBuffer.get();
-
+		System.out.println(numero + ordem);
 		disponiveis -= 8;
 
 		return new Mensagem(numero, ordem);
@@ -107,10 +95,12 @@ public class CanalComunicacoes extends Thread {
 
 	}
 
-	public void generateCommands(int i) {
+	public List<String> generateCommands(int i) {
 		if (i == -1) {
 			while (!bd.getParar()) {
-				put(generateRandomCommand());
+				Mensagem msg = generateRandomCommand();
+				put(msg);
+				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			}
 		} else {
 			for (int j = 0; j < i; j++) {
@@ -118,21 +108,10 @@ public class CanalComunicacoes extends Thread {
 				put(msg);
 				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			}
-			String textCommand = "";
-			int numeroComandosAMostrar = i == 1 ? 1 : 10;
-			for (int j = 0; j < numeroComandosAMostrar; j++) {
-				textCommand = ultimosComandos.remove(ultimosComandos.size() - 1) + "\n";
-				if(numMsgsNoDisplay < 10) {
-					gui.getTxtFieldComandos().setText(gui.getTxtFieldComandos().getText() + textCommand);
-					numMsgsNoDisplay++;
-				} else {
-					gui.getTxtFieldComandos().setText(textCommand);
-					numMsgsNoDisplay = 1;
-				}
-			}
-			
-
+			System.out.println(ultimosComandos.get(0));
+			return ultimosComandos;
 		}
+		return ultimosComandos;
 	}
 
 	private Mensagem generateRandomCommand() {
@@ -144,5 +123,9 @@ public class CanalComunicacoes extends Thread {
 
 	public void blockDancarino() {
 		bd.setCoreografoRunning(true);
+	}
+
+	public List<String> getUltimosComandos() {
+		return ultimosComandos;
 	}
 }
