@@ -230,7 +230,7 @@ public class GUIDancarino extends JFrame {
 		taConsole.setBounds(12, 238, 420, 170);
 		contentPane.add(taConsole);
 		
-		 chckbxAtivarCoreagrafo = new JCheckBox("Ativar Coreagrafo");
+		 chckbxAtivarCoreagrafo = new JCheckBox("Ativar Coreografo");
 		chckbxAtivarCoreagrafo.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
@@ -307,7 +307,8 @@ public class GUIDancarino extends JFrame {
 		Mensagem msg = canal.get();
 		if(msg != null) {
 			convertMsgToCommand(msg);
-		} else keepCheckingMensagem();
+			keepCheckingMensagem();
+		}
 	}
 
 	public MyRobotLego getRobot() {
@@ -322,25 +323,4 @@ public class GUIDancarino extends JFrame {
 		this.bd = bd;
 	}
 	
-//	enum Actions {
-//	    PARAR (0),
-//	    RETA (1),
-//	    RETAGUARDA (2),
-//		CURVARESQUERDA (3),
-//		CURVARDIREITA (4);
-//		
-//		
-//		
-//		int ordem;
-//		
-//		
-//		Actions(int ordem) {
-//	        this.ordem = ordem;
-//	    }
-//		
-//		Actions getAction( int ordem){
-//			return Actions.values()[ordem];
-//		}
-//		
-//	  }
 }

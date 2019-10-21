@@ -30,15 +30,19 @@ public class CanalComunicacoes{
 		}
 	}
 
+	private void setMap(MappedByteBuffer map) {
+		this.map = map;
+	}
+
 	public boolean put(Mensagem msg) {
 
 		if (disponiveis < MAX_BUFFER) {
 			if (posPut >= MAX_BUFFER) {
 				posPut = 0;
 			}
-			getMap().position(posPut);
+			map.position(posPut);
 			ByteBuffer bb = ByteBuffer.allocate(8).putInt(msg.getNumero()).putInt(msg.getOrdem());
-			getMap().put(bb.duplicate().array());
+			map.put(bb.duplicate().array());
 			posPut += 8;
 			disponiveis += 8;
 			try {
@@ -46,9 +50,8 @@ public class CanalComunicacoes{
 				try (FileOutputStream fos = new FileOutputStream("teste.txt")) {
 					   fos.write(bb.array());
 					   //fos.close(); There is no more need for this line since you had created the instance of "fos" inside the try. And this will automatically close the OutputStream
-					}
+				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			return true;
@@ -65,7 +68,7 @@ public class CanalComunicacoes{
 		if (pos < 0) {
 			pos += MAX_BUFFER;
 		}
-
+		
 		map.position(pos);
 		IntBuffer mapBuffer = map.asIntBuffer();
 		int numero = mapBuffer.get();
@@ -74,15 +77,4 @@ public class CanalComunicacoes{
 		disponiveis -= 8;
 		return new Mensagem(numero, ordem);
 	}
-
-
-	public MappedByteBuffer getMap() {
-		return map;
-	}
-
-	public void setMap(MappedByteBuffer map) {
-		this.map = map;
-	}
-
-
 }

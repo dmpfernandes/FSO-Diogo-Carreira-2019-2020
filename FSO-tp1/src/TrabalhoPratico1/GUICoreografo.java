@@ -16,6 +16,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 
 public class GUICoreografo extends JFrame {
@@ -34,7 +35,7 @@ public class GUICoreografo extends JFrame {
 	private int numero;
 	private BD bd;
 	private List<String> ultimosComandos;
-
+	
 	public void initializeVariables() {
 		parar = false;
 		numero = -1;
@@ -138,10 +139,6 @@ public class GUICoreografo extends JFrame {
 		contentPane.add(btnPararComandos);
 	}
 
-	public GUICoreografo() {
-		// TODO Auto-generated constructor stub
-	}
-
 	private void stopCommands() {
 		numero++;
 		bd.setCoreografoRunning(false);
@@ -179,12 +176,14 @@ public class GUICoreografo extends JFrame {
 			while(true) {
 				Mensagem msg = generateRandomCommand();
 				cc.put(msg);
+				System.out.println("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			}
 		} else {
 			for (int j = 0; j < i; j++) {
 				Mensagem msg = generateRandomCommand();
 				cc.put(msg);
+				System.out.println("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			}
 			return ultimosComandos;
