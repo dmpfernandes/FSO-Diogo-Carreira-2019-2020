@@ -18,7 +18,7 @@ import javax.swing.JTextArea;
 import TrabalhoPratico1.BD;
 import TrabalhoPratico1.GUICoreografo;
 
-public class CanalComunicacoes extends Thread {
+public class CanalComunicacoes{
 
 	private File file;
 	private FileChannel filechannel;
@@ -26,21 +26,15 @@ public class CanalComunicacoes extends Thread {
 	final static int MAX_BUFFER = 256;
 
 	private int disponiveis = 0;
-	private BD bd;
-	private int numero, numMsgsNoDisplay;
 	private static int posPut = 0;
 
-	private List<String> ultimosComandos;
 
-	public CanalComunicacoes(String nomeDoFicheiro, BD bd) {
+	public CanalComunicacoes(String nomeDoFicheiro) {
 		try {
 			this.file = new File(nomeDoFicheiro);
 			this.file.createNewFile();
-			this.bd = bd;
-			this.numMsgsNoDisplay = 0;
 			filechannel = new RandomAccessFile(this.file, "rw").getChannel();
 			map = filechannel.map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
-			ultimosComandos = new LinkedList<String>();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -77,6 +71,7 @@ public class CanalComunicacoes extends Thread {
 			map.put(bb.duplicate().array());
 			posPut += 8;
 			disponiveis += 8;
+			System.out.println(map.getInt(posPut));
 			try {
 
 //				filechannel.write((ByteBuffer) bb.flip());
@@ -95,37 +90,4 @@ public class CanalComunicacoes extends Thread {
 
 	}
 
-	public List<String> generateCommands(int i) {
-		if (i == -1) {
-			while (!bd.getParar()) {
-				Mensagem msg = generateRandomCommand();
-				put(msg);
-				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
-			}
-		} else {
-			for (int j = 0; j < i; j++) {
-				Mensagem msg = generateRandomCommand();
-				put(msg);
-				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
-			}
-			System.out.println(ultimosComandos.get(0));
-			return ultimosComandos;
-		}
-		return ultimosComandos;
-	}
-
-	private Mensagem generateRandomCommand() {
-		numero++;
-		Random r = new Random();
-		int ordem = r.nextInt(4);
-		return new Mensagem(numero, ordem);
-	}
-
-	public void blockDancarino() {
-		bd.setCoreografoRunning(true);
-	}
-
-	public List<String> getUltimosComandos() {
-		return ultimosComandos;
-	}
 }

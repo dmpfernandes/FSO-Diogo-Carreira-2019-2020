@@ -63,8 +63,8 @@ public class GUIDancarino extends JFrame {
 	 */
 	public GUIDancarino() {
 		bd = new BD();
-		canal = new CanalComunicacoes("teste.txt", bd);
-		
+		canal = new CanalComunicacoes("teste.txt");
+		this.robot = new MyRobotLego(bd.getNomeRobot());
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 450);
@@ -236,8 +236,9 @@ public class GUIDancarino extends JFrame {
 				if(chckbxAtivarCoreagrafo.isSelected()) {
 					guiCoregrafo = new GUICoreografo(canal);
 					guiCoregrafo.setVisible(true);
-					
-					convertMsgToCommand();
+					updateButtons(true);
+					bd.setCoreografoRunning(true);
+					startCheckingBuffer();
 				}
 				
 			}
@@ -248,6 +249,12 @@ public class GUIDancarino extends JFrame {
 		updateButtons(true);
 	}
 
+	protected void startCheckingBuffer() {
+		while(bd.getParar() != true && bd.isCoreografoRunning()) {
+			convertMsgToCommand();
+		}
+	}
+
 	private void myPrint(String msg) {
 		if (bd.isDebug()) {
 			taConsole.setText(taConsole.getText() + "\n" + msg);
@@ -256,7 +263,6 @@ public class GUIDancarino extends JFrame {
 	}
 
 	public void updateButtons(boolean firstStart) {
-		robot = bd.getRobot();
 		btnDireita.setEnabled(bd.isOnOff());
 		btnEsquerda.setEnabled(bd.isOnOff());
 		btnFrente.setEnabled(bd.isOnOff());
@@ -278,36 +284,28 @@ public class GUIDancarino extends JFrame {
 	
 	public void convertMsgToCommand(){
 		Mensagem msg = canal.get();
+		if(msg != null)System.out.println(msg);
 		if(msg != null) {
 			int ordem = msg.getOrdem();
 			switch(ordem) {
 			case 0:
 				robot.parar();
-				System.out.println("parei");
 				convertMsgToCommand();
 				break;
 			case 1:
 				robot.reta(bd.getDistancia());
-				System.out.println("reta");
-
 				convertMsgToCommand();
 				break;
 			case 2:
 				robot.reta(-bd.getDistancia());
-				System.out.println("atras");
-
 				convertMsgToCommand();
 				break;
 			case 3:
 				robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
-				System.out.println("curva esquerda");
-
 				convertMsgToCommand();
 				break;
 			case 4:
 				robot.curvarDireita(bd.getRaio(), bd.getAngulo());
-				System.out.println("curva direita");
-
 				convertMsgToCommand();
 				break;
 			}
