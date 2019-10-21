@@ -16,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 
 import TrabalhoPratico1.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico1.canalComunicacao.Mensagem;
+import TrabalhoPratico1.canalComunicacao.Vigilante;
 
 public class GUIDancarino extends JFrame {
 
@@ -41,6 +42,8 @@ public class GUIDancarino extends JFrame {
 	private JButton btnParar;
 	
 	private CanalComunicacoes canal;
+	private Vigilante vigilante;
+	private static GUIDancarino frame;
 
 	/**
 	 * Launch the application.
@@ -49,7 +52,7 @@ public class GUIDancarino extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GUIDancarino frame = new GUIDancarino();
+					frame = new GUIDancarino();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -234,13 +237,12 @@ public class GUIDancarino extends JFrame {
 
 			public void actionPerformed(ActionEvent arg0) {
 				if(chckbxAtivarCoreagrafo.isSelected()) {
+					canal.setCanalAberto(true);
 					guiCoregrafo = new GUICoreografo(canal);
+					vigilante = new Vigilante(canal, frame);
 					guiCoregrafo.setVisible(true);
 					updateButtons(true);
-					bd.setCoreografoRunning(true);
-					startCheckingBuffer();
 				}
-				
 			}
 		});
 		chckbxAtivarCoreagrafo.setBounds(293, 195, 149, 23);
@@ -249,13 +251,7 @@ public class GUIDancarino extends JFrame {
 		updateButtons(true);
 	}
 
-	protected void startCheckingBuffer() {
-		while(bd.getParar() != true && bd.isCoreografoRunning()) {
-			convertMsgToCommand();
-		}
-	}
-
-	private void myPrint(String msg) {
+	public void myPrint(String msg) {
 		if (bd.isDebug()) {
 			taConsole.setText(taConsole.getText() + "\n" + msg);
 		}
@@ -281,40 +277,17 @@ public class GUIDancarino extends JFrame {
 			robot.closeRobot();
 		}
 	}
-	
-	public void convertMsgToCommand(){
-		Mensagem msg = canal.get();
-		if(msg != null)System.out.println(msg);
-		if(msg != null) {
-			int ordem = msg.getOrdem();
-			switch(ordem) {
-			case 0:
-				robot.parar();
-				convertMsgToCommand();
-				break;
-			case 1:
-				robot.reta(bd.getDistancia());
-				convertMsgToCommand();
-				break;
-			case 2:
-				robot.reta(-bd.getDistancia());
-				convertMsgToCommand();
-				break;
-			case 3:
-				robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
-				convertMsgToCommand();
-				break;
-			case 4:
-				robot.curvarDireita(bd.getRaio(), bd.getAngulo());
-				convertMsgToCommand();
-				break;
-			}
-		}
-		else {
-			chckbxAtivarCoreagrafo.setSelected(false);
-		}
-		
-		
+
+	public MyRobotLego getRobot() {
+		return robot;
+	}
+
+	public BD getBd() {
+		return bd;
+	}
+
+	public void setBd(BD bd) {
+		this.bd = bd;
 	}
 	
 //	enum Actions {

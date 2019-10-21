@@ -8,56 +8,28 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-
-import javax.swing.JTextArea;
-
-import TrabalhoPratico1.BD;
-import TrabalhoPratico1.GUICoreografo;
 
 public class CanalComunicacoes{
 
 	private File file;
 	private FileChannel filechannel;
-	private static MappedByteBuffer map;
+	private MappedByteBuffer map;
 	final static int MAX_BUFFER = 256;
 
 	private int disponiveis = 0;
 	private static int posPut = 0;
-
+	public boolean canalAberto;
 
 	public CanalComunicacoes(String nomeDoFicheiro) {
 		try {
 			this.file = new File(nomeDoFicheiro);
 			this.file.createNewFile();
+			this.canalAberto = false;
 			filechannel = new RandomAccessFile(this.file, "rw").getChannel();
-			map = filechannel.map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
+			setMap(filechannel.map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-
-	public Mensagem get() {
-		if (disponiveis == 0) {
-			return null;
-		}
-		int pos = posPut - disponiveis;
-		if (pos < 0) {
-			pos += MAX_BUFFER;
-		}
-
-		map.position(pos);
-		IntBuffer mapBuffer = map.asIntBuffer();
-		int numero = mapBuffer.get();
-		int ordem = mapBuffer.get();
-		System.out.println(numero + ordem);
-		disponiveis -= 8;
-
-		return new Mensagem(numero, ordem);
-
 	}
 
 	public boolean put(Mensagem msg) {
@@ -66,14 +38,12 @@ public class CanalComunicacoes{
 			if (posPut >= MAX_BUFFER) {
 				posPut = 0;
 			}
-			map.position(posPut);
+			getMap().position(posPut);
 			ByteBuffer bb = ByteBuffer.allocate(8).putInt(msg.getNumero()).putInt(msg.getOrdem());
-			map.put(bb.duplicate().array());
+			getMap().put(bb.duplicate().array());
 			posPut += 8;
 			disponiveis += 8;
-			System.out.println(map.getInt(posPut));
 			try {
-
 //				filechannel.write((ByteBuffer) bb.flip());
 				try (FileOutputStream fos = new FileOutputStream("teste.txt")) {
 					   fos.write(bb.array());
@@ -81,7 +51,6 @@ public class CanalComunicacoes{
 					}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-
 				e.printStackTrace();
 			}
 			return true;
@@ -89,5 +58,22 @@ public class CanalComunicacoes{
 		return false;
 
 	}
+
+	public boolean isCanalAberto() {
+		return canalAberto;
+	}
+
+	public void setCanalAberto(boolean canalAberto) {
+		this.canalAberto = canalAberto;
+	}
+
+	public MappedByteBuffer getMap() {
+		return map;
+	}
+
+	public void setMap(MappedByteBuffer map) {
+		this.map = map;
+	}
+
 
 }
