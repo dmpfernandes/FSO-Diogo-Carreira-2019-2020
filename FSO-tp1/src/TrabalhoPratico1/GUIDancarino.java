@@ -16,7 +16,6 @@ import javax.swing.border.EmptyBorder;
 
 import TrabalhoPratico1.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico1.canalComunicacao.Mensagem;
-import TrabalhoPratico1.canalComunicacao.Vigilante;
 
 public class GUIDancarino extends JFrame {
 
@@ -42,7 +41,6 @@ public class GUIDancarino extends JFrame {
 	private JButton btnParar;
 	
 	private CanalComunicacoes canal;
-	private Vigilante vigilante;
 	private static GUIDancarino frame;
 
 	/**
@@ -237,9 +235,7 @@ public class GUIDancarino extends JFrame {
 
 			public void actionPerformed(ActionEvent arg0) {
 				if(chckbxAtivarCoreagrafo.isSelected()) {
-					canal.setCanalAberto(true);
 					guiCoregrafo = new GUICoreografo(canal);
-					vigilante = new Vigilante(canal, frame);
 					guiCoregrafo.setVisible(true);
 					updateButtons(true);
 				}
@@ -276,6 +272,42 @@ public class GUIDancarino extends JFrame {
 		} else {
 			robot.closeRobot();
 		}
+	}
+	
+	public void convertMsgToCommand(Mensagem msg){
+		if(msg != null) {
+			int ordem = msg.getOrdem();
+			switch(ordem) {
+			case 0:
+				robot.parar();
+				myPrint("Parei!");
+				break;
+			case 1:
+				robot.reta(bd.getDistancia());
+				myPrint("Reta com distancia: " + bd.getDistancia());
+
+				break;
+			case 2:
+				robot.reta(-bd.getDistancia());
+				myPrint("Retaguarda com distancia: " + bd.getDistancia());
+				break;
+			case 3:
+				robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
+				myPrint("Curvar Esquerda com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+				break;
+			case 4:
+				robot.curvarDireita(bd.getRaio(), bd.getAngulo());
+				myPrint("Curvar Direita com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+				break;
+			}
+		} else keepCheckingMensagem();
+	}
+	
+	public void keepCheckingMensagem() {
+		Mensagem msg = canal.get();
+		if(msg != null) {
+			convertMsgToCommand(msg);
+		} else keepCheckingMensagem();
 	}
 
 	public MyRobotLego getRobot() {

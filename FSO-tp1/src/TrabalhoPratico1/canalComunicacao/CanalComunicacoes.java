@@ -18,13 +18,11 @@ public class CanalComunicacoes{
 
 	private int disponiveis = 0;
 	private static int posPut = 0;
-	public boolean canalAberto;
 
 	public CanalComunicacoes(String nomeDoFicheiro) {
 		try {
 			this.file = new File(nomeDoFicheiro);
 			this.file.createNewFile();
-			this.canalAberto = false;
 			filechannel = new RandomAccessFile(this.file, "rw").getChannel();
 			setMap(filechannel.map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER));
 		} catch (Exception e) {
@@ -59,13 +57,24 @@ public class CanalComunicacoes{
 
 	}
 
-	public boolean isCanalAberto() {
-		return canalAberto;
+	public Mensagem get() {
+		if (disponiveis <= 0) {
+			return null;
+		}
+		int pos = posPut - disponiveis;
+		if (pos < 0) {
+			pos += MAX_BUFFER;
+		}
+
+		map.position(pos);
+		IntBuffer mapBuffer = map.asIntBuffer();
+		int numero = mapBuffer.get();
+		int ordem = mapBuffer.get();
+		System.out.println(numero + " " +  ordem);
+		disponiveis -= 8;
+		return new Mensagem(numero, ordem);
 	}
 
-	public void setCanalAberto(boolean canalAberto) {
-		this.canalAberto = canalAberto;
-	}
 
 	public MappedByteBuffer getMap() {
 		return map;
