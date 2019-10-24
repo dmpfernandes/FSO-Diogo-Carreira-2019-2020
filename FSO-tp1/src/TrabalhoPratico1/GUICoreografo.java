@@ -41,24 +41,24 @@ public class GUICoreografo extends JFrame {
 		numero = -1;
 		bd = new BD();
 		ultimosComandos = new ArrayList<String>();
+		cc = new CanalComunicacoes("teste.txt");
 	}
 
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					GUICoreografo frame = new GUICoreografo();
-//					frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					GUICoreografo frame = new GUICoreografo();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 
-	public GUICoreografo(CanalComunicacoes cc) {
+	public GUICoreografo() {
 		
-		this.cc = cc;
 		initializeVariables();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);

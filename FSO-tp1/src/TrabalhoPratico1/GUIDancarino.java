@@ -3,6 +3,7 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDateTime;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -235,9 +236,8 @@ public class GUIDancarino extends JFrame {
 
 			public void actionPerformed(ActionEvent arg0) {
 				if(chckbxAtivarCoreagrafo.isSelected()) {
-					guiCoregrafo = new GUICoreografo(canal);
-					guiCoregrafo.setVisible(true);
 					updateButtons(true);
+					keepCheckingMensagem();
 				}
 			}
 		});
@@ -305,7 +305,13 @@ public class GUIDancarino extends JFrame {
 	
 	public void keepCheckingMensagem() {
 		Mensagem msg = canal.get();
-		if(msg != null) {
+		if(msg == null) {
+			LocalDateTime time = LocalDateTime.now();
+			while(LocalDateTime.now().minusNanos(time.getNano()).isBefore(time.plusSeconds(2L))) {
+				
+			}
+			keepCheckingMensagem();
+		} else {
 			convertMsgToCommand(msg);
 			keepCheckingMensagem();
 		}
