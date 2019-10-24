@@ -26,4 +26,11 @@ public class Mensagem {
 		this.ordem = ordem;
 	}
 
+	
+	@Override
+	public String toString() {
+		return "Mensagem [numero=" + numero + ", ordem=" + ordem + "]";
+	}
+
+	
 }

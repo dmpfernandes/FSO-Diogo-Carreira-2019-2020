@@ -1,4 +1,5 @@
 package TrabalhoPratico1;
+
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -33,14 +34,14 @@ public class GUIDancarino extends JFrame {
 	private BD bd;
 	private MyRobotLego robot;
 	private GUICoreografo guiCoregrafo;
-	
+
 	private JCheckBox chckbxDebug;
 	private JButton btnEsquerda;
 	private JButton btnDireita;
 	private JButton btnRetaguarda;
 	private JButton btnFrente;
 	private JButton btnParar;
-	
+
 	private CanalComunicacoes canal;
 	private static GUIDancarino frame;
 
@@ -67,7 +68,7 @@ public class GUIDancarino extends JFrame {
 		bd = new BD();
 		canal = new CanalComunicacoes("teste.txt");
 		this.robot = new MyRobotLego(bd.getNomeRobot());
-		
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 450);
 		contentPane = new JPanel();
@@ -95,7 +96,7 @@ public class GUIDancarino extends JFrame {
 		rdbtnOnOff.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				bd.setOnOff(rdbtnOnOff.isSelected());
-			
+
 				myPrint("On/Off: " + bd.isOnOff());
 				updateButtons(false);
 			}
@@ -138,7 +139,6 @@ public class GUIDancarino extends JFrame {
 		tfAngulo.setBounds(181, 39, 60, 19);
 		contentPane.add(tfAngulo);
 		tfAngulo.setColumns(10);
-		
 
 		JLabel lblAngulo = new JLabel("Angulo:");
 		lblAngulo.setBounds(125, 41, 70, 15);
@@ -230,20 +230,19 @@ public class GUIDancarino extends JFrame {
 		taConsole.setEditable(false);
 		taConsole.setBounds(12, 238, 420, 170);
 		contentPane.add(taConsole);
-		
-		 chckbxAtivarCoreagrafo = new JCheckBox("Ativar Coreografo");
+
+		chckbxAtivarCoreagrafo = new JCheckBox("Ativar Coreografo");
 		chckbxAtivarCoreagrafo.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				if(chckbxAtivarCoreagrafo.isSelected()) {
-					updateButtons(true);
+				if (chckbxAtivarCoreagrafo.isSelected()) {
 					keepCheckingMensagem();
 				}
 			}
 		});
 		chckbxAtivarCoreagrafo.setBounds(293, 195, 149, 23);
 		contentPane.add(chckbxAtivarCoreagrafo);
-		
+
 		updateButtons(true);
 	}
 
@@ -260,61 +259,55 @@ public class GUIDancarino extends JFrame {
 		btnFrente.setEnabled(bd.isOnOff());
 		btnParar.setEnabled(bd.isOnOff());
 		btnRetaguarda.setEnabled(bd.isOnOff());
-		if(!firstStart) {
+		if (!firstStart) {
 			robotConnection();
 		}
 	}
-	
+
 	public void robotConnection() {
-		if(bd.isOnOff()) {
-			System.out.println("Nome do Robot: " + bd.getNomeRobot());
+		if (bd.isOnOff()) {
+
 			robot.startRobot();
 		} else {
 			robot.closeRobot();
 		}
 	}
-	
-	public void convertMsgToCommand(Mensagem msg){
-		if(msg != null) {
-			int ordem = msg.getOrdem();
-			switch(ordem) {
-			case 0:
-				robot.parar();
-				myPrint("Parei!");
-				break;
-			case 1:
-				robot.reta(bd.getDistancia());
-				myPrint("Reta com distancia: " + bd.getDistancia());
 
-				break;
-			case 2:
-				robot.reta(-bd.getDistancia());
-				myPrint("Retaguarda com distancia: " + bd.getDistancia());
-				break;
-			case 3:
-				robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
-				myPrint("Curvar Esquerda com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
-				break;
-			case 4:
-				robot.curvarDireita(bd.getRaio(), bd.getAngulo());
-				myPrint("Curvar Direita com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
-				break;
-			}
-		} else keepCheckingMensagem();
+	public void convertMsgToCommand(Mensagem msg) {
+
+		int ordem = msg.getOrdem();
+		switch (ordem) {
+		case -1:
+			keepCheckingMensagem();
+			break;
+		case 0:
+			robot.parar();
+			myPrint("Parei!");
+			break;
+		case 1:
+			robot.reta(bd.getDistancia());
+			myPrint("Reta com distancia: " + bd.getDistancia());
+			break;
+		case 2:
+			robot.reta(-bd.getDistancia());
+			myPrint("Retaguarda com distancia: " + bd.getDistancia());
+			break;
+		case 3:
+			robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
+			myPrint("Curvar Esquerda com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+			break;
+		case 4:
+			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
+			myPrint("Curvar Direita com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+			break;
+		}
+
 	}
-	
+
 	public void keepCheckingMensagem() {
 		Mensagem msg = canal.get();
-		if(msg == null) {
-			LocalDateTime time = LocalDateTime.now();
-			while(LocalDateTime.now().minusNanos(time.getNano()).isBefore(time.plusSeconds(2L))) {
-				
-			}
-			keepCheckingMensagem();
-		} else {
-			convertMsgToCommand(msg);
-			keepCheckingMensagem();
-		}
+		System.out.println(msg.toString());
+		convertMsgToCommand(msg);
 	}
 
 	public MyRobotLego getRobot() {
@@ -328,5 +321,5 @@ public class GUIDancarino extends JFrame {
 	public void setBd(BD bd) {
 		this.bd = bd;
 	}
-	
+
 }
