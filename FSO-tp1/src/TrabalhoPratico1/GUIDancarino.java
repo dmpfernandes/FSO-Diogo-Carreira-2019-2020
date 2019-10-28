@@ -277,28 +277,33 @@ public class GUIDancarino extends JFrame {
 
 		int ordem = msg.getOrdem();
 		switch (ordem) {
-		case -1:
-			keepCheckingMensagem();
-			break;
 		case 0:
-			robot.parar();
-			myPrint("Parei!");
+			chckbxAtivarCoreagrafo.setSelected(false);
 			break;
 		case 1:
 			robot.reta(bd.getDistancia());
 			myPrint("Reta com distancia: " + bd.getDistancia());
+			keepCheckingMensagem();
 			break;
 		case 2:
 			robot.reta(-bd.getDistancia());
 			myPrint("Retaguarda com distancia: " + bd.getDistancia());
+			keepCheckingMensagem();
 			break;
 		case 3:
 			robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
 			myPrint("Curvar Esquerda com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+			keepCheckingMensagem();
 			break;
 		case 4:
 			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
 			myPrint("Curvar Direita com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+			keepCheckingMensagem();
+			break;
+		case 5:
+			robot.parar();
+			myPrint("Parei!");
+			keepCheckingMensagem();
 			break;
 		}
 

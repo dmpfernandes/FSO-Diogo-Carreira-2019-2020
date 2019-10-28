@@ -5,7 +5,7 @@ public class BD {
 	private String nomeRobot, consola;
 	private boolean onOff, debug;
 	private int raio, angulo, distancia;
-	private boolean parar, coreografoRunning;
+	private boolean parar;
 	
 	
 	public BD() {
@@ -16,7 +16,6 @@ public class BD {
 		this.raio = 0;
 		this.angulo = 90;
 		this.distancia = 20;
-		this.coreografoRunning = false;
 	}
 
 	public String getNomeRobot() {
@@ -79,11 +78,5 @@ public class BD {
 		return this.parar;
 	}
 	
-	public boolean isCoreografoRunning() {
-		return coreografoRunning;
-	}
 
-	public void setCoreografoRunning(boolean coreografoRunning) {
-		this.coreografoRunning = coreografoRunning;
-	}
 }

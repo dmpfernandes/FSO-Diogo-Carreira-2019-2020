@@ -8,11 +8,13 @@ import java.nio.channels.FileChannel;
 public class CanalComunicacoes{
 
 	private RandomAccessFile memoryMappedFile;
-	private MappedByteBuffer map;
+	private static MappedByteBuffer map;
 	final static int MAX_BUFFER = 256;
 
-	private int bytesUtilizados = 0;
+	private static int bytesUtilizados = 0;
 	private static int posPut = 0;
+	private static int pos = 0;
+	private int matchnumero = -1;
 
 	public CanalComunicacoes(String nomeDoFicheiro) {
 		try {
@@ -24,9 +26,9 @@ public class CanalComunicacoes{
 	}
 
 
-	public boolean put(Mensagem msg) {
+	public void put(Mensagem msg) {
 
-		if (bytesUtilizados < MAX_BUFFER) {
+		
 			if (posPut >= MAX_BUFFER) {
 				posPut = 0;
 			}
@@ -34,28 +36,40 @@ public class CanalComunicacoes{
 			map.putInt(msg.getNumero());
 			map.putInt(msg.getOrdem());
 			posPut += 8;
-			bytesUtilizados += 8;
-			return true;
-		}
-		return false;
-
 	}
 
 	public Mensagem get() {
-		if (bytesUtilizados <= 0) {
-			return new Mensagem(-1, -1);
-		}
-		int pos = posPut - bytesUtilizados;
-		if (pos < 0) {
-			pos += MAX_BUFFER;
-		}
+		
+		
+		
+//		if (pos < 0) {
+//			pos += MAX_BUFFER;
+//		}
 		
 		map.position(pos);
+		
+		
 		IntBuffer mapBuffer = map.asIntBuffer();
 		int numero = mapBuffer.get();
 		int ordem = mapBuffer.get();
-		System.out.println(numero + " " +  ordem);
-		bytesUtilizados -= 8;
-		return new Mensagem(numero, ordem);
+		if (matchnumero < numero) {
+			matchnumero = numero;
+
+			System.out.println(numero + " " +  ordem);
+			if(ordem == 0) {
+				
+				return new Mensagem(0, 0);
+			}else {
+				pos += 8;
+			}
+			if(pos >= MAX_BUFFER) {
+				map.clear();
+				pos=0;
+			}
+			
+			return new Mensagem(numero, ordem);
+		}
+		return new Mensagem(0,0);
+		
 	}
 }

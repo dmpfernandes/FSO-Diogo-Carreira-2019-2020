@@ -140,9 +140,7 @@ public class GUICoreografo extends JFrame {
 	}
 
 	private void stopCommands() {
-		numero++;
-		bd.setCoreografoRunning(false);
-		cc.put(new Mensagem(numero, 0));
+		parar = true;
 	}
 
 	protected void changeButtons() {
@@ -173,12 +171,20 @@ public class GUICoreografo extends JFrame {
 
 	public List<String> generateCommands(int i) {
 		if (i == -1) {
-			while(true) {
+			if(!parar) {
 				Mensagem msg = generateRandomCommand();
 				cc.put(msg);
 				System.out.println("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					
+					e.printStackTrace();
+				}
+				generateCommands(-1);
 			}
+			
 		} else {
 			for (int j = 0; j < i; j++) {
 				Mensagem msg = generateRandomCommand();
@@ -186,15 +192,23 @@ public class GUICoreografo extends JFrame {
 				System.out.println("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 				ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			}
-			return ultimosComandos;
+		
 		}
+		return ultimosComandos;
 	}
 
 	private Mensagem generateRandomCommand() {
 		numero++;
 		Random r = new Random();
 		int ordem = r.nextInt(4);
-		return new Mensagem(numero, ordem);
+		if(ordem == 0) {
+			numero--;
+			return generateRandomCommand();
+		}
+		else {
+			return new Mensagem(numero, ordem);
+		}
+		
 	}
 	
 	public boolean isParar() {
