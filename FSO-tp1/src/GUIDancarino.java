@@ -1,4 +1,4 @@
-package TrabalhoPratico1;
+
 
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -283,26 +283,56 @@ public class GUIDancarino extends JFrame {
 		case 1:
 			robot.reta(bd.getDistancia());
 			myPrint("Reta com distancia: " + bd.getDistancia());
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			keepCheckingMensagem();
 			break;
 		case 2:
 			robot.reta(-bd.getDistancia());
 			myPrint("Retaguarda com distancia: " + bd.getDistancia());
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			keepCheckingMensagem();
 			break;
 		case 3:
 			robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
 			myPrint("Curvar Esquerda com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			keepCheckingMensagem();
 			break;
 		case 4:
 			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
 			myPrint("Curvar Direita com raio de " + bd.getRaio() + " e com angulo " + bd.getAngulo());
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			keepCheckingMensagem();
 			break;
 		case 5:
 			robot.parar();
 			myPrint("Parei!");
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			keepCheckingMensagem();
 			break;
 		}
