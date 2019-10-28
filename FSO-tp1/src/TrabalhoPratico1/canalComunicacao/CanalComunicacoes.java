@@ -1,5 +1,6 @@
 package TrabalhoPratico1.canalComunicacao;
 
+import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
@@ -9,6 +10,7 @@ public class CanalComunicacoes{
 
 	private RandomAccessFile memoryMappedFile;
 	private static MappedByteBuffer map;
+	private File file;
 	final static int MAX_BUFFER = 256;
 
 	private static int bytesUtilizados = 0;
@@ -17,12 +19,15 @@ public class CanalComunicacoes{
 	private int matchnumero = -1;
 
 	public CanalComunicacoes(String nomeDoFicheiro) {
+		file = new File(nomeDoFicheiro);
 		try {
-			this.memoryMappedFile = new RandomAccessFile(nomeDoFicheiro, "rw");
+			this.memoryMappedFile = new RandomAccessFile(file, "rw");
 			this.map = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		file.deleteOnExit();
 	}
 
 
