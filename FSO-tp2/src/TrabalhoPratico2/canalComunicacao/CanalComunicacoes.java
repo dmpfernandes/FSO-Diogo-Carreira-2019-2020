@@ -6,34 +6,36 @@ import java.io.RandomAccessFile;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.Semaphore;
 
-public class CanalComunicacoes{
+public class CanalComunicacoes {
 
 	private RandomAccessFile memoryMappedFile;
 	private static MappedByteBuffer map;
 	private static File file;
 	final static int MAX_BUFFER = 256;
 
-	private int posPut = 0;
-	private int pos = 0;
-	private int matchnumero = -1;
+	private static int posPut = 0;
+	private int posGet = 0;
+	
+	private Semaphore semaphore;
 
 	public CanalComunicacoes(String nomeDoFicheiro) {
 		file = new File(nomeDoFicheiro);
+		semaphore = new Semaphore(1,true);
 		try {
 			this.memoryMappedFile = new RandomAccessFile(file, "rw");
-			this.map = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
-			
+			CanalComunicacoes.map = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		file.deleteOnExit();
 	}
 
-
 	public void put(Mensagem msg) {
-
-		
+		try {
+			semaphore.acquire();
 			if (posPut >= MAX_BUFFER) {
 				posPut = 0;
 			}
@@ -41,54 +43,43 @@ public class CanalComunicacoes{
 			map.putInt(msg.getNumero());
 			map.putInt(msg.getOrdem());
 			posPut += 8;
+			semaphore.release();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Recurso em uso!");
+		}
+	
 	}
 
 	public Mensagem get() {
-		
-		
-		
-//		if (pos < 0) {
-//			pos += MAX_BUFFER;
-//		}
-		
-		map.position(pos);
-		
-		
-		IntBuffer mapBuffer = map.asIntBuffer();
-		int numero = mapBuffer.get();
-		int ordem = mapBuffer.get();
-		if (matchnumero < numero) {
-			matchnumero = numero;
+		map.position(posGet);
 
-			System.out.println(numero + " " +  ordem);
-			if(ordem == 0) {
-				
-				return new Mensagem(0, 0);
-			}else {
-				pos += 8;
+		int numero = map.getInt();
+		int ordem = map.getInt();
+		if (numero != 0) {
+
+			System.out.println(numero + " " + ordem);
+
+			posGet += 8;
+
+			if (posGet >= MAX_BUFFER) {
+				posGet = 0;
 			}
-			if(pos >= MAX_BUFFER) {
-				map.clear();
-				pos=0;
-			}
-			
+
 			return new Mensagem(numero, ordem);
 		}
-		return new Mensagem(0,0);
-		
+		return new Mensagem(0, 0);
+
 	}
-	
-	
+
 	public void fecharCanal() {
-		
+
 		try {
 			this.memoryMappedFile.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
-		
+
 	}
 }
