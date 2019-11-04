@@ -14,7 +14,23 @@ public class Dancarino implements Runnable{
 
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
+		while(true) {
+			Mensagem msg = canal.get();
+			if(msg.getNumero() == 0) {
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			else {
+				System.out.println(msg.toString());
+				convertMsgToCommand(msg);
+			}
+			
+		}
+			
 		
 	}
 
@@ -23,6 +39,13 @@ public class Dancarino implements Runnable{
 		int ordem = msg.getOrdem();
 		switch (ordem) {
 		case 0:
+			robot.parar(false);
+			try {
+				Thread.sleep(1500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			break;
 		case 1:
 			robot.reta(bd.getDistancia());
@@ -32,17 +55,15 @@ public class Dancarino implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			keepCheckingMensagem();
 			break;
 		case 2:
-			robot.reta(-bd.getDistancia());
+			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			keepCheckingMensagem();
 			break;
 		case 3:
 			robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
@@ -52,37 +73,29 @@ public class Dancarino implements Runnable{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			keepCheckingMensagem();
 			break;
 		case 4:
-			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
+			robot.reta(-bd.getDistancia());
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			keepCheckingMensagem();
 			break;
 		case 5:
-			robot.parar();
+			robot.parar(true);
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			keepCheckingMensagem();
 			break;
 		}
 
 	}
 
-	public void keepCheckingMensagem() {
-		Mensagem msg = canal.get();
-		System.out.println(msg.toString());
-		convertMsgToCommand(msg);
-	}
 
 	
 }

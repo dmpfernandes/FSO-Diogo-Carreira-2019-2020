@@ -2,20 +2,16 @@
 
 public class BD {
 
-	private String nomeRobot, consola;
-	private boolean onOff, debug;
+	private String nomeRobot;
 	private int raio, angulo, distancia;
 	private boolean parar;
 	
 	
 	public BD() {
 		this.nomeRobot = new String("");
-		this.consola = new String("");
-		this.onOff = false;
-		this.debug = true;
 		this.raio = 0;
-		this.angulo = 90;
-		this.distancia = 20;
+		this.angulo = 45;
+		this.distancia = 10;
 	}
 
 	public String getNomeRobot() {
@@ -24,30 +20,6 @@ public class BD {
 
 	public void setNomeRobot(String nomeRobot) {
 		this.nomeRobot = nomeRobot;
-	}
-
-	public String getConsola() {
-		return consola;
-	}
-
-	public void setConsola(String consola) {
-		this.consola = consola;
-	}
-
-	public boolean isOnOff() {
-		return onOff;
-	}
-
-	public void setOnOff(boolean onOff) {
-		this.onOff = onOff;
-	}
-
-	public boolean isDebug() {
-		return debug;
-	}
-
-	public void setDebug(boolean debug) {
-		this.debug = debug;
 	}
 
 	public int getRaio() {

@@ -38,8 +38,8 @@ public class MyRobotLego {
 		System.out.println("Curva a Direita com raio de " + raio + " cm e angulo de " + angulo + "º.");
 	}
 	
-	public void parar() {
-		robot.Parar(true);
+	public void parar(boolean parar) {
+		robot.Parar(parar);
 		System.out.println("Robot parado.");
 	}
 
