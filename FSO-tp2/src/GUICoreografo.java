@@ -5,10 +5,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
+import TrabalhoPratico2.canalComunicacao.CanalComunicacoes;
+import TrabalhoPratico2.canalComunicacao.Mensagem;
 
-
-import TrabalhoPratico1.canalComunicacao.CanalComunicacoes;
-import TrabalhoPratico1.canalComunicacao.Mensagem;
 import javax.swing.JLabel;
 import javax.swing.JCheckBox;
 import javax.swing.JButton;

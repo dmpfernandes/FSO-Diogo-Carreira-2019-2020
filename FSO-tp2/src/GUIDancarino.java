@@ -16,8 +16,8 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import TrabalhoPratico1.canalComunicacao.CanalComunicacoes;
-import TrabalhoPratico1.canalComunicacao.Mensagem;
+import TrabalhoPratico2.canalComunicacao.CanalComunicacoes;
+import TrabalhoPratico2.canalComunicacao.Mensagem;
 
 public class GUIDancarino extends JFrame {
 

@@ -1,4 +1,4 @@
-package TrabalhoPratico1.canalComunicacao;
+package TrabalhoPratico2.canalComunicacao;
 
 import java.io.File;
 import java.io.IOException;
