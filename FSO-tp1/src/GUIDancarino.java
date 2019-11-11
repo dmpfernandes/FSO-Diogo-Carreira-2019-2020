@@ -33,8 +33,6 @@ public class GUIDancarino extends JFrame {
 
 	private BD bd;
 	private MyRobotLego robot;
-	private GUICoreografo guiCoregrafo;
-
 	private JCheckBox chckbxDebug;
 	private JButton btnEsquerda;
 	private JButton btnDireita;

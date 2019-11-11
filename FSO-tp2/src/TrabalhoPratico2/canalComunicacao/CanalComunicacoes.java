@@ -8,7 +8,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.Semaphore;
 
-public class CanalComunicacoes {
+public class CanalComunicacoes extends Thread{
 
 	private RandomAccessFile memoryMappedFile;
 	private static MappedByteBuffer map;
@@ -33,7 +33,7 @@ public class CanalComunicacoes {
 		file.deleteOnExit();
 	}
 
-	public void put(Mensagem msg) {
+	public void escreverMsg(Mensagem msg) {
 		try {
 			semaphore.acquire();
 			if (posPut >= MAX_BUFFER) {
@@ -51,25 +51,29 @@ public class CanalComunicacoes {
 	
 	}
 
-	public Mensagem get() {
-		map.position(posGet);
+	public Mensagem lerMsg() {
+		try {
+			semaphore.acquire();
+			map.position(posGet);
+			
+			int numero = map.getInt();
+			int ordem = map.getInt();
+			if (numero != 0) {
 
-		int numero = map.getInt();
-		int ordem = map.getInt();
-		if (numero != 0) {
+				System.out.println(numero + " " + ordem);
 
-			System.out.println(numero + " " + ordem);
+				posGet += 8;
 
-			posGet += 8;
-
-			if (posGet >= MAX_BUFFER) {
-				posGet = 0;
+				if (posGet >= MAX_BUFFER) {
+					posGet = 0;
+				}
+				semaphore.release();
+				return new Mensagem(numero, ordem);
 			}
-
-			return new Mensagem(numero, ordem);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		return new Mensagem(0, 0);
-
 	}
 
 	public void fecharCanal() {

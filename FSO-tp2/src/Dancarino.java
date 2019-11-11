@@ -7,15 +7,11 @@ public class Dancarino implements Runnable{
 	private BD bd;
 	private MyRobotLego robot;
 	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public void run() {
 		while(true) {
-			Mensagem msg = canal.get();
+			Mensagem msg = canal.lerMsg();
 			if(msg.getNumero() == 0) {
 				try {
 					Thread.sleep(500);
