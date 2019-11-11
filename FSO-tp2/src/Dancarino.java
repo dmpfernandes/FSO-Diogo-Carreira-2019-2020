@@ -6,8 +6,9 @@ public class Dancarino implements Runnable{
 	private CanalComunicacoes canal;
 	private BD bd;
 	private MyRobotLego robot;
-	
 
+	
+	
 	@Override
 	public void run() {
 		while(true) {
