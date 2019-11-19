@@ -6,6 +6,7 @@ public class Dancarino implements Runnable{
 	private CanalComunicacoes canal;
 	private BD bd;
 	private MyRobotLego robot;
+	private String nomeRobot;
 
 	
 	
@@ -25,10 +26,7 @@ public class Dancarino implements Runnable{
 				System.out.println(msg.toString());
 				convertMsgToCommand(msg);
 			}
-			
 		}
-			
-		
 	}
 
 	public void convertMsgToCommand(Mensagem msg) {
@@ -93,6 +91,20 @@ public class Dancarino implements Runnable{
 
 	}
 
+	public void startRobot() {
+		robot = new MyRobotLego();
+		robot.startRobot(nomeRobot);
+		
+		
+	}
+
+	public String getNomeRobot() {
+		return nomeRobot;
+	}
+
+	public void setNomeRobot(String nomeRobot) {
+		this.nomeRobot = nomeRobot;
+	}
 
 	
 }

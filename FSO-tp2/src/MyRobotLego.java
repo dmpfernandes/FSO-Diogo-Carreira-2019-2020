@@ -3,14 +3,13 @@
 
 public class MyRobotLego {
 //	private RobotLegoEV3 robot;
-	private String nomeRobot;
 	
 	public MyRobotLego() {
 //		robot = new RobotLegoEV3();
 		
 	}
 	
-	public void startRobot() {
+	public void startRobot(String nomeRobot) {
 //		robot.OpenEV3(getNomeRobot());
 		System.out.println("Nome do Robot: " + nomeRobot);
 	}
@@ -41,13 +40,5 @@ public class MyRobotLego {
 	public void parar(boolean parar) {
 //		robot.Parar(parar);
 		System.out.println("Robot parado.");
-	}
-
-	public String getNomeRobot() {
-		return nomeRobot;
-	}
-
-	public void setNomeRobot(String nomeRobot) {
-		this.nomeRobot = nomeRobot;
 	}
 }

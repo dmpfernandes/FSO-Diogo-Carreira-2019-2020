@@ -3,8 +3,10 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import java.awt.GridLayout;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -19,7 +21,7 @@ import javax.swing.event.ListSelectionEvent;
 public class Lancador extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	private JFrame frame;
+	private JPanel contentPane;
 	private JTextArea txtAreaLogs;
 	private JButton btnAddCoreografo, btnRemoverCoreografo, btnIniciarTodosCoreografos, btnAddDancarino, btnRemoverDancarino, btnIniciartodosDancarinos, btnResetLogs;
 	private JCheckBox chckbxActivaTodosCoreografos, chckbxActivaTodosDancarinos;
@@ -41,8 +43,8 @@ public class Lancador extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Lancador window = new Lancador();
-					window.frame.setVisible(true);
+					Lancador frame = new Lancador();
+					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -63,27 +65,28 @@ public class Lancador extends JFrame {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(100, 100, 650, 700);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		contentPane = new JPanel();
+		setBounds(100, 100, 650, 700);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
 		
 		JLabel txtFldCoreografos = new JLabel("Coreógrafos");
 		txtFldCoreografos.setBounds(25, 22, 96, 16);
-		frame.getContentPane().add(txtFldCoreografos);
+		contentPane.add(txtFldCoreografos);
 		
 		JLabel lblDanarinos = new JLabel("Dançarinos");
 		lblDanarinos.setBounds(350, 22, 96, 16);
-		frame.getContentPane().add(lblDanarinos);
+		contentPane.add(lblDanarinos);
 		
 		btnAddCoreografo = new JButton("Adicionar");
 		btnAddCoreografo.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				listCoreografos.add("Coreografo-");
+				listCoreografos.add("Coreografo-" + getNextIndex("dancarino"));
 			}
 		});
 		btnAddCoreografo.setBounds(25, 311, 193, 38);
-		frame.getContentPane().add(btnAddCoreografo);
+		contentPane.add(btnAddCoreografo);
 		
 		btnRemoverCoreografo = new JButton("Remover");
 		btnRemoverCoreografo.setBounds(25, 361, 193, 38);
@@ -94,7 +97,7 @@ public class Lancador extends JFrame {
 				}
 			}
 		});
-		frame.getContentPane().add(btnRemoverCoreografo);
+		contentPane.add(btnRemoverCoreografo);
 		
 		btnIniciarTodosCoreografos = new JButton("Iniciar todos");
 		btnIniciarTodosCoreografos.setBounds(25, 411, 193, 38);
@@ -105,7 +108,7 @@ public class Lancador extends JFrame {
 				});
 			}
 		});
-		frame.getContentPane().add(btnIniciarTodosCoreografos);
+		contentPane.add(btnIniciarTodosCoreografos);
 		
 		chckbxActivaTodosCoreografos = new JCheckBox("Activa todos");
 		chckbxActivaTodosCoreografos.setBounds(25, 462, 128, 23);
@@ -118,7 +121,7 @@ public class Lancador extends JFrame {
 				});
 			}
 		});
-		frame.getContentPane().add(chckbxActivaTodosCoreografos);
+		contentPane.add(chckbxActivaTodosCoreografos);
 		
 		btnAddDancarino = new JButton("Adicionar");
 		btnAddDancarino.addActionListener(new ActionListener() {
@@ -127,7 +130,7 @@ public class Lancador extends JFrame {
 			}
 		});
 		btnAddDancarino.setBounds(350, 311, 193, 38);
-		frame.getContentPane().add(btnAddDancarino);
+		contentPane.add(btnAddDancarino);
 		
 		btnRemoverDancarino = new JButton("Remover");
 		btnRemoverDancarino.addActionListener(new ActionListener() {
@@ -138,25 +141,26 @@ public class Lancador extends JFrame {
 			}
 		});
 		btnRemoverDancarino.setBounds(350, 361, 193, 38);
-		frame.getContentPane().add(btnRemoverDancarino);
+		contentPane.add(btnRemoverDancarino);
 		
 		btnIniciartodosDancarinos = new JButton("IniciarTodos");
 		btnIniciartodosDancarinos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dancarinos.entrySet().stream().forEach(c -> c.getValue().run());
-
+				listDancarinos.forEach(d -> dancarinos.put(d, new Dancarino()));
+				dancarinos.entrySet().forEach(d -> d.getValue().startRobot());
 			}
 		});
 		btnIniciartodosDancarinos.setBounds(350, 411, 193, 38);
-		frame.getContentPane().add(btnIniciartodosDancarinos);
+		contentPane.add(btnIniciartodosDancarinos);
 		
 		chckbxActivaTodosDancarinos = new JCheckBox("Activa todos");
 		chckbxActivaTodosDancarinos.setBounds(350, 462, 128, 23);
 		chckbxActivaTodosDancarinos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				dancarinos.entrySet().stream().forEach(c -> c.getValue().run());
 			}
 		});
-		frame.getContentPane().add(chckbxActivaTodosDancarinos);
+		contentPane.add(chckbxActivaTodosDancarinos);
 		
 		btnResetLogs = new JButton("Limpa Logging");
 		btnResetLogs.setBounds(25, 518, 567, 38);
@@ -165,11 +169,11 @@ public class Lancador extends JFrame {
 				txtAreaLogs.setText("");
 			}
 		});
-		frame.getContentPane().add(btnResetLogs);
+		contentPane.add(btnResetLogs);
 		
 		txtAreaLogs = new JTextArea();
 		txtAreaLogs.setBounds(25, 568, 567, 78);
-		frame.getContentPane().add(txtAreaLogs);
+		contentPane.add(txtAreaLogs);
 		txtAreaLogs.setColumns(10);
 		
 		txtAreaDancarinos = new JList<String>();
@@ -179,7 +183,7 @@ public class Lancador extends JFrame {
 				dancarinoSelecionado = (String) e.getSource();
 			}
 		});
-		frame.getContentPane().add(txtAreaDancarinos);
+		contentPane.add(txtAreaDancarinos);
 		
 		txtAreaCoreografos = new JList<String>();
 		txtAreaCoreografos.addListSelectionListener(new ListSelectionListener() {
@@ -188,7 +192,7 @@ public class Lancador extends JFrame {
 			}
 		});
 		txtAreaCoreografos.setBounds(25, 79, 193, 185);
-		frame.getContentPane().add(txtAreaCoreografos);
+		contentPane.add(txtAreaCoreografos);
 	}
 	
 	public int getNextIndex(String tipo) {
