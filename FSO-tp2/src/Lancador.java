@@ -16,6 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.event.ListSelectionListener;
+
+import TrabalhoPratico2.canalComunicacao.CanalComunicacoes;
+
 import javax.swing.event.ListSelectionEvent;
 
 public class Lancador extends JFrame {
@@ -57,6 +60,9 @@ public class Lancador extends JFrame {
 	 */
 	public Lancador() {
 		initialize();
+		CanalComunicacoes canal = new CanalComunicacoes("teste.txt");
+		listDancarinos = new ArrayList<String>();
+		listCoreografos = new ArrayList<String>();
 		dancarinos = new HashMap<String, Dancarino>();
 		coreografos = new HashMap<String, Coreografo>();
 	}
