@@ -44,6 +44,7 @@ public class CanalComunicacoes implements Runnable {
 
 	public void escreverMsg(Mensagem msg) {
 		acessoCanal.release();
+		System.out.println("CANAL : Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 		estado = "escrever";
 		try {
 			elementosLivres.acquire();

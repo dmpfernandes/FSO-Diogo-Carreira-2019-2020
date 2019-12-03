@@ -1,19 +1,26 @@
 import TrabalhoPratico2.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico2.canalComunicacao.Mensagem;
 
-public class Dancarino implements Runnable{
+public class Dancarino extends Thread{
 	
 	private CanalComunicacoes canal;
 	private BD bd;
 	private MyRobotLego robot;
 	private String nomeRobot;
 
-	
+	public Dancarino(CanalComunicacoes canal) {
+		this.canal = canal;
+		Thread a;
+//		a = new Thread(this::convertMsgToCommand);
+		
+	}
 	
 	@Override
 	public void run() {
 		while(true) {
+			canal.open();
 			Mensagem msg = canal.lerMsg();
+			System.out.println("DANCARINO: Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			if(msg.getNumero() == 0) {
 				try {
 					Thread.sleep(500);
@@ -30,7 +37,7 @@ public class Dancarino implements Runnable{
 	}
 
 	public void convertMsgToCommand(Mensagem msg) {
-
+		
 		int ordem = msg.getOrdem();
 		switch (ordem) {
 		case 0:
@@ -94,9 +101,9 @@ public class Dancarino implements Runnable{
 	public void startRobot() {
 		robot = new MyRobotLego();
 		robot.startRobot(nomeRobot);
-		
-		
 	}
+	
+	
 
 	public String getNomeRobot() {
 		return nomeRobot;

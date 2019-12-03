@@ -12,7 +12,7 @@ public class Coreografo implements Runnable {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private CanalComunicacoes cc;
+	private CanalComunicacoes canal;
 	private boolean parar;
 	private int numero;
 	private BD bd;
@@ -23,14 +23,17 @@ public class Coreografo implements Runnable {
 		numero = -1;
 		bd = new BD();
 		ultimosComandos = new ArrayList<String>();
-		cc = new CanalComunicacoes("teste.txt");
+		bd.setNomeRobot("RobotLego");
 	}
 
 	public void run() {
+		generateCommands();
 	}
 
-	public Coreografo() {
+	public Coreografo(CanalComunicacoes canal) {
+		this.canal = canal;
 		initializeVariables();
+		
 	}
 
 	private void stopCommands() {
@@ -47,9 +50,10 @@ public class Coreografo implements Runnable {
 
 	public List<String> generateCommands() {
 		if (!parar) {
+			canal.open();
 			Mensagem msg = generateRandomCommand();
-			cc.escreverMsg(msg);
-			System.out.println("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
+			canal.escreverMsg(msg);
+			System.out.println("COREOGRAFO : Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			try {
 				Thread.sleep(500);
