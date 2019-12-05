@@ -2,6 +2,8 @@
 
 
 public class MyRobotLego {
+private String nomeRobot;
+
 //	private RobotLegoEV3 robot;
 	
 	public MyRobotLego() {
@@ -9,7 +11,7 @@ public class MyRobotLego {
 		
 	}
 	
-	public void startRobot(String nomeRobot) {
+	public void startRobot() {
 //		robot.OpenEV3(getNomeRobot());
 		System.out.println("Nome do Robot: " + nomeRobot);
 	}
@@ -40,5 +42,9 @@ public class MyRobotLego {
 	public void parar(boolean parar) {
 //		robot.Parar(parar);
 		System.out.println("Robot parado.");
+	}
+
+	public void setNomeRobot(String text) {
+		nomeRobot = text;
 	}
 }

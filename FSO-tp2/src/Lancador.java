@@ -142,7 +142,6 @@ public class Lancador extends JFrame {
 				int nextIndex = getNextIndex("dancarino");
 				listDancarinos.add("Dancarino-" + nextIndex);
 				dancarinoVector.addElement("Dancarino-" + nextIndex);
-//				defaultListCoreografos.addElement(listCoreografos.get(listCoreografos.size()-1));
 				jListDancarinos.setListData(dancarinoVector);
 			}
 		});
@@ -169,8 +168,12 @@ public class Lancador extends JFrame {
 		btnIniciartodosDancarinos = new JButton("IniciarTodos");
 		btnIniciartodosDancarinos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				listDancarinos.forEach(d -> {});
+				listDancarinos.stream().forEach(c -> {
+					dancarinos.put(c, new Dancarino(canal));
+				});
 				dancarinos.entrySet().forEach(d -> d.getValue().startRobot());
+				System.out.println("Dançarino - Inicia");
+
 			}
 		});
 		btnIniciartodosDancarinos.setBounds(350, 411, 193, 38);
@@ -182,7 +185,9 @@ public class Lancador extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				dancarinos.entrySet().stream().forEach(c -> {
 					Thread t = new Thread(c.getValue());
-					t.start();});
+					t.start();
+					System.out.println("Dançarino - Start - " + c.getValue());
+				});
 				}
 		});
 		contentPane.add(chckbxActivaTodosDancarinos);
