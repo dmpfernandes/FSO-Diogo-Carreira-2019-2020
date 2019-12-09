@@ -3,6 +3,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -34,6 +35,9 @@ public class Coreografo extends JFrame implements Runnable {
 	private JButton btnGerar16Comandos, btnGerar1Comando, btnGerar32Comandos, btnGerarComandosIlimitados,
 			btnPararComandos;
 	private CanalComunicacoes cc;
+	private Semaphore atividade;
+	private boolean onoff = true;
+	private String estado = "atuar";
 
 	public void initializeVariables() {
 		parar = false;
@@ -42,14 +46,37 @@ public class Coreografo extends JFrame implements Runnable {
 		ultimosComandos = new ArrayList<String>();
 		bd.setNomeRobot("RobotLego");
 		setVisible(true);
+		atividade = new Semaphore(0);
 	}
 
 	public void run() {
-		generateCommands();
+		canal.open();
+		while(onoff) {
+			switch(estado) {
+			case "dormir":
+				try {
+					atividade.acquire();
+					estado = "atuar";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+				}
+				break;
+			case "atuar":
+				generateCommands();
+				
+				break;
+			case "kill":
+				break;
+			}
+		}
+		
 	}
+	
+	
 
 	public Coreografo(CanalComunicacoes canal) {
 		this.canal = canal;
+		
 		initializeVariables();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -79,25 +106,52 @@ public class Coreografo extends JFrame implements Runnable {
 		contentPane.add(btnPararComandos);
 	}
 
-	private void stopCommands() {
+	public void startCommands() {
+		atividade.release();
+		parar = false;
+		
+	}
+	
+	public void stopCommands() {
+	
 		parar = true;
+		estado="dormir";
+	}
+	
+	public void killApp() {
+		estado = "kill";
+		dispose();
+		parar = true;
+		onoff = false;
+		
+		
 	}
 
-	public void showComandosExecutados(int nComandos) {
-		String textCommand = "";
 
-		for (int j = ultimosComandos.size() - 1; j > ultimosComandos.size() - 11; j--) {
-			textCommand = ultimosComandos.get(j) + "\n";
+	
+	public void showComandosExecutados() {
+		String textCommand = "";
+		txtFieldComandos.setText("");
+		for (int j = 1; j < 11; j++) {
+			int counter = ultimosComandos.size()-j;
+			if(counter >= 0 && ultimosComandos.get(counter)!=null && !ultimosComandos.get(counter).isEmpty()) {
+				textCommand = ultimosComandos.get(counter) + "\n";
+				txtFieldComandos.setText(textCommand+txtFieldComandos.getText() );
+			}else {
+				break;
+			}
+			
 		}
 	}
 
 	public List<String> generateCommands() {
 		if (!parar) {
-			canal.open();
+			
 			Mensagem msg = generateRandomCommand();
 			canal.escreverMsg(msg);
 			System.out.println("COREOGRAFO : Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
+			showComandosExecutados();
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
@@ -125,4 +179,5 @@ public class Coreografo extends JFrame implements Runnable {
 	public boolean isParar() {
 		return parar;
 	}
+
 }

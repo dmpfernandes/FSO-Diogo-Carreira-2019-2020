@@ -1,7 +1,11 @@
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Semaphore;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -36,24 +40,52 @@ public class Dancarino extends JFrame implements Runnable{
 	private JButton btnRetaguarda;
 	private JButton btnFrente;
 	private JButton btnParar;
-
-	private static Dancarino frame;
-
+	private boolean onoff = true;
+	private String estado = "atuar";
+	private Semaphore atividade;
+	private boolean parar;
+	private List<String> ultimosComandos;
 
 	public Dancarino(CanalComunicacoes canal) {
 		this.canal = canal;
 		initializeGUI();
 		setVisible(true);
-//		a = new Thread(this::convertMsgToCommand);
+		atividade = new Semaphore(0);
+		ultimosComandos = new ArrayList<String>();
+		
 		
 	}
-
+	
+	@Override
+	public void run() {
+		canal.open();
+		while(onoff) {
+			switch(estado) {
+			case "dormir":
+				try {
+					atividade.acquire();
+					estado = "atuar";
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+				}
+				break;
+			case "atuar":
+				Mensagem msg = canal.lerMsg();
+				System.out.println(msg.toString());
+				convertMsgToCommand(msg);
+				
+				break;
+			case "kill":
+				
+				break;
+			}
+		}
+	}
 	/**
 	 * Create the frame.
 	 */
 	public void initializeGUI() {
 		bd = new BD();
-		
 		this.robot = new MyRobotLego();
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -199,33 +231,16 @@ public class Dancarino extends JFrame implements Runnable{
 
 	}
 	
-	@Override
-	public void run() {
-		while(true) {
-			canal.open();
-			Mensagem msg = canal.lerMsg();
-			System.out.println("DANCARINO: Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
-			if(msg.getNumero() == 0) {
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			else {
-				System.out.println(msg.toString());
-				convertMsgToCommand(msg);
-			}
-		}
-	}
+
 
 	public void convertMsgToCommand(Mensagem msg) {
 		
 		int ordem = msg.getOrdem();
+		myPrint(msg.toString());
 		switch (ordem) {
 		case 0:
 			robot.parar(false);
+			
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -288,6 +303,27 @@ public class Dancarino extends JFrame implements Runnable{
 		robot.startRobot();
 	}
 	
+	public void startCommands() {
+		atividade.release();
+		parar = false;
+		
+	}
+	
+	public void stopCommands() {
+	
+		parar = true;
+		estado="dormir";
+	}
+	
+	public void killApp() {
+		estado = "kill";
+		dispose();
+		parar = true;
+		onoff = false;
+		
+		
+	}
+	
 	
 
 	public String getNomeRobot() {
@@ -299,7 +335,23 @@ public class Dancarino extends JFrame implements Runnable{
 	}
 
 	public void myPrint(String msg) {
-		taConsole.setText(taConsole.getText() + "\n" + msg);
+		ultimosComandos.add(msg);
+		showComandosExecutados();
+	}
+	
+	public void showComandosExecutados() {
+		String textCommand = "";
+		taConsole.setText("");
+		for (int j = 1; j < 11; j++) {
+			int counter = ultimosComandos.size()-j;
+			if(counter >= 0 && ultimosComandos.get(counter)!=null && !ultimosComandos.get(counter).isEmpty()) {
+				textCommand = ultimosComandos.get(counter) + "\n";
+				taConsole.setText(textCommand+taConsole.getText() );
+			}else {
+				break;
+			}
+			
+		}
 	}
 	
 }
