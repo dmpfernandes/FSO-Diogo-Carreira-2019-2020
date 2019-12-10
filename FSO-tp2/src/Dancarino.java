@@ -71,7 +71,7 @@ public class Dancarino extends JFrame implements Runnable{
 				break;
 			case "atuar":
 				Mensagem msg = canal.lerMsg();
-				System.out.println(msg.toString());
+//				System.out.println(msg.toString());
 				convertMsgToCommand(msg);
 				
 				break;
@@ -234,7 +234,7 @@ public class Dancarino extends JFrame implements Runnable{
 
 
 	public void convertMsgToCommand(Mensagem msg) {
-		
+		System.out.println(msg.toString());
 		int ordem = msg.getOrdem();
 		myPrint(msg.toString());
 		switch (ordem) {

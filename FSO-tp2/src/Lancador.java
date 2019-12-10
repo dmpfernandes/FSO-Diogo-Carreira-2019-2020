@@ -108,13 +108,13 @@ public class Lancador extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (jListCoreografos.getSelectedIndex() != -1) {
 					int elemIndex = jListCoreografos.getSelectedIndex();
-					System.out.println("Lista pre: " + listCoreografos.toString());
+//					System.out.println("Lista pre: " + listCoreografos.toString());
 					coreografos.get(listCoreografos.get(elemIndex)).killApp();
 					coreografos.remove(listCoreografos.get(elemIndex));
 					coreografosThread.remove(listCoreografos.get(elemIndex));
 					listCoreografos.remove(elemIndex);
 					coreografoVector.remove(elemIndex);
-					System.out.println("Lista pos: " + listCoreografos.toString());
+//					System.out.println("Lista pos: " + listCoreografos.toString());
 					jListCoreografos.setListData(coreografoVector);
 				}
 			}
@@ -179,13 +179,13 @@ public class Lancador extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				if (jListDancarinos.getSelectedIndex() != -1) {
 					int elemIndex = jListDancarinos.getSelectedIndex();
-					System.out.println("Lista pre: " + listDancarinos.toString());
+//					System.out.println("Lista pre: " + listDancarinos.toString());
 					dancarinos.get(listDancarinos.get(elemIndex)).killApp();
 					dancarinos.remove(listDancarinos.get(elemIndex));
 					dancarinosThread.remove(listDancarinos.get(elemIndex));
 					listDancarinos.remove(elemIndex);
 					dancarinoVector.remove(elemIndex);
-					System.out.println("Lista pos: " + listDancarinos.toString());
+//					System.out.println("Lista pos: " + listDancarinos.toString());
 					jListDancarinos.setListData(dancarinoVector);
 				}
 			}
@@ -234,7 +234,7 @@ public class Lancador extends JFrame {
 		contentPane.add(chckbxActivaTodosDancarinos);
 
 		btnResetLogs = new JButton("Limpa Logging");
-		btnResetLogs.setBounds(25, 518, 567, 38);
+		btnResetLogs.setBounds(25, 535, 567, 38);
 		btnResetLogs.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				txtAreaLogs.setText("");
@@ -243,7 +243,7 @@ public class Lancador extends JFrame {
 		contentPane.add(btnResetLogs);
 
 		txtAreaLogs = new JTextArea();
-		txtAreaLogs.setBounds(25, 568, 567, 78);
+		txtAreaLogs.setBounds(25, 581, 567, 78);
 		contentPane.add(txtAreaLogs);
 		txtAreaLogs.setColumns(10);
 
@@ -254,6 +254,19 @@ public class Lancador extends JFrame {
 		jListCoreografos = new JList<String>(coreografoVector);
 		jListCoreografos.setBounds(25, 79, 193, 185);
 		contentPane.add(jListCoreografos);
+		
+		JButton btnStartSpy = new JButton("Inicia Espiao");
+		btnStartSpy.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int randomDancarino = (int) (Math.random() * counterDancarino);
+				SpyRobot spy = new SpyRobot(canal);
+				Thread t = new Thread(spy);
+				t.setName("Espiao -> Dancarino-" + randomDancarino);
+				t.start();
+			}
+		});
+		btnStartSpy.setBounds(350, 494, 193, 38);
+		contentPane.add(btnStartSpy);
 	}
 
 	public int getNextIndex(String tipo) {

@@ -149,7 +149,7 @@ public class Coreografo extends JFrame implements Runnable {
 			
 			Mensagem msg = generateRandomCommand();
 			canal.escreverMsg(msg);
-			System.out.println("COREOGRAFO : Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
+//			System.out.println("COREOGRAFO : Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			ultimosComandos.add("Numero: " + msg.getNumero() + " Ordem: " + msg.getOrdem());
 			showComandosExecutados();
 			try {
