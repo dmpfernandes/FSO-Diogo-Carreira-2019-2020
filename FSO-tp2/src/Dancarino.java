@@ -22,6 +22,7 @@ import TrabalhoPratico2.canalComunicacao.Mensagem;
 public class Dancarino extends JFrame implements Runnable{
 	
 	private CanalComunicacoes canal;
+	private SpyRobot spy;
 	private BD bd;
 	private MyRobotLego robot;
 	private String nomeRobot;
@@ -53,7 +54,15 @@ public class Dancarino extends JFrame implements Runnable{
 		atividade = new Semaphore(0);
 		ultimosComandos = new ArrayList<String>();
 		
-		
+	}
+
+	public Dancarino(CanalComunicacoes canal, SpyRobot spy) {
+		this.canal = canal;
+		initializeGUI();
+		setVisible(true);
+		atividade = new Semaphore(0);
+		ultimosComandos = new ArrayList<String>();
+		this.spy = spy;
 	}
 	
 	@Override
@@ -86,7 +95,7 @@ public class Dancarino extends JFrame implements Runnable{
 	 */
 	public void initializeGUI() {
 		bd = new BD();
-		this.robot = new MyRobotLego();
+		this.robot = new MyRobotLego(spy);
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 450);
@@ -237,8 +246,10 @@ public class Dancarino extends JFrame implements Runnable{
 		System.out.println(msg.toString());
 		int ordem = msg.getOrdem();
 		myPrint(msg.toString());
-		switch (ordem) {
-		case 0:
+		ACCOES acao = ACCOES.getAcaoWithValue(ordem);
+		switch (acao) {
+		
+		case PARAR_FALSE:
 			robot.parar(false);
 			
 			try {
@@ -248,7 +259,7 @@ public class Dancarino extends JFrame implements Runnable{
 				e.printStackTrace();
 			}
 			break;
-		case 1:
+		case RETA:
 			robot.reta(bd.getDistancia());
 			try {
 				Thread.sleep(1500);
@@ -257,7 +268,7 @@ public class Dancarino extends JFrame implements Runnable{
 				e.printStackTrace();
 			}
 			break;
-		case 2:
+		case CDIR:
 			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
 			try {
 				Thread.sleep(1500);
@@ -266,7 +277,7 @@ public class Dancarino extends JFrame implements Runnable{
 				e.printStackTrace();
 			}
 			break;
-		case 3:
+		case CESQ:
 			robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
 			try {
 				Thread.sleep(1500);
@@ -275,7 +286,7 @@ public class Dancarino extends JFrame implements Runnable{
 				e.printStackTrace();
 			}
 			break;
-		case 4:
+		case BACK:
 			robot.reta(-bd.getDistancia());
 			try {
 				Thread.sleep(1500);
@@ -284,7 +295,7 @@ public class Dancarino extends JFrame implements Runnable{
 				e.printStackTrace();
 			}
 			break;
-		case 5:
+		case PARAR_TRUE:
 			robot.parar(true);
 			try {
 				Thread.sleep(1500);
@@ -298,7 +309,7 @@ public class Dancarino extends JFrame implements Runnable{
 	}
 
 	public void startRobot() {
-		robot = new MyRobotLego();
+		robot = new MyRobotLego(spy);
 		robot.setNomeRobot(nomeRobot);
 		robot.startRobot();
 	}

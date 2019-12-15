@@ -5,6 +5,10 @@ import java.io.RandomAccessFile;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.JButton;
@@ -14,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils.Collections;
 
 import TrabalhoPratico2.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico2.canalComunicacao.Mensagem;
@@ -23,15 +28,15 @@ import javax.swing.JTextField;
 public class SpyRobot extends JFrame implements Runnable{
 
 	private static final long serialVersionUID = 1L;
-	private static final long MAX_BUFFER = 256;
-	private CanalComunicacoes canal;
+	private static final long MAX_BUFFER = 2000000;
 	private JPanel contentPane;
 	private JButton btnGravarTrajetoria;
 	private JButton btnReproduzir;
 	private JTextField txtFldNomeFicheiro;
-	private boolean onoff = true;
+	private boolean onoff, recording = false;
 	private String estado = "dormir";
 	private Semaphore atividade;
+	private MyRobotLego robot;
 	
 	private File file;
 	private RandomAccessFile memoryMappedFile;
@@ -39,9 +44,9 @@ public class SpyRobot extends JFrame implements Runnable{
 	protected String nomeFicheiro = "Default_Spy_Name";
 	private JTextArea textArea;
 
-	public SpyRobot(CanalComunicacoes canal) {
-		this.canal = canal;
+	public SpyRobot(MyRobotLego robot) {
 		atividade = new Semaphore(0);
+		this.robot = robot;
 		
 		//cria o ficheiro e subsequente buffer para o qual vai escrever
 		try {
@@ -62,6 +67,7 @@ public class SpyRobot extends JFrame implements Runnable{
 		btnGravarTrajetoria = new JButton("Gravar trajetoria");
 		btnGravarTrajetoria.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				recording = true;
 				estado = "ler";
 				atividade.release();
 			}
@@ -101,7 +107,6 @@ public class SpyRobot extends JFrame implements Runnable{
 
 	@Override
 	public void run() {
-		canal.open();
 		while(onoff) {
 			switch(estado) {
 			case "dormir":
@@ -110,14 +115,7 @@ public class SpyRobot extends JFrame implements Runnable{
 				} catch (InterruptedException e) {}
 				break;
 			case "ler":
-				Mensagem msg = canal.lerMsg();
-				if(msg.getNumero() == -1) {
-					estado = "dormir";
-					break;
-				}
-				System.out.println("ESPIAO: " + msg.toString());
-				gravarMensagem(msg);
-				
+			
 				break;
 			case "escrever":
 				reproduzirTrajetoria();
@@ -136,21 +134,20 @@ public class SpyRobot extends JFrame implements Runnable{
 			int numero = fileContent.get();
 			int ordem = fileContent.get();
 
-			canal.escreverMsg(new Mensagem(numero, ordem));
 		}
 		
 	}
 
-	private void gravarMensagem(Mensagem msg) {
-		
-		// TODO Auto-generated method stub
-		map.putInt(msg.getNumero());
-		map.putInt(msg.getOrdem());
-		textArea.setText(textArea.getText() + "\n"+ msg.toString());
-		if(map.position() >= MAX_BUFFER) {
-			map.position(0);
-		}
+	public void gravarMensagem(Map<String, Object> args) {
 		
 		
+	}
+
+	public boolean isOnoff() {
+		return onoff;
+	}
+
+	public boolean isRecording() {
+		return recording;
 	}
 }
