@@ -19,15 +19,15 @@ import javax.swing.border.EmptyBorder;
 import TrabalhoPratico2.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico2.canalComunicacao.Mensagem;
 
-public class Dancarino extends JFrame implements Runnable{
-	
+public class Dancarino extends JFrame implements Runnable {
+
 	private CanalComunicacoes canal;
 	private SpyRobot spy;
 	private BD bd;
 	private MyRobotLego robot;
 	private String nomeRobot;
 	private static final long serialVersionUID = 1L;
-	
+
 	// ficamos com o EV8, passe de conexao 1234
 	private JPanel contentPane;
 	private JTextField tfRoboNome;
@@ -47,29 +47,23 @@ public class Dancarino extends JFrame implements Runnable{
 	private boolean parar;
 	private List<String> ultimosComandos;
 
+	private String lastCommand = "";
+
 	public Dancarino(CanalComunicacoes canal) {
 		this.canal = canal;
 		initializeGUI();
 		setVisible(true);
 		atividade = new Semaphore(0);
 		ultimosComandos = new ArrayList<String>();
-		
+
 	}
 
-	public Dancarino(CanalComunicacoes canal, SpyRobot spy) {
-		this.canal = canal;
-		initializeGUI();
-		setVisible(true);
-		atividade = new Semaphore(0);
-		ultimosComandos = new ArrayList<String>();
-		this.spy = spy;
-	}
-	
+
 	@Override
 	public void run() {
 		canal.open();
-		while(onoff) {
-			switch(estado) {
+		while (onoff) {
+			switch (estado) {
 			case "dormir":
 				try {
 					atividade.acquire();
@@ -82,20 +76,21 @@ public class Dancarino extends JFrame implements Runnable{
 				Mensagem msg = canal.lerMsg();
 //				System.out.println(msg.toString());
 				convertMsgToCommand(msg);
-				
+
 				break;
 			case "kill":
-				
+
 				break;
 			}
 		}
 	}
+
 	/**
 	 * Create the frame.
 	 */
 	public void initializeGUI() {
 		bd = new BD();
-		this.robot = new MyRobotLego(spy);
+		this.robot = new MyRobotLego();
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 450);
@@ -239,8 +234,6 @@ public class Dancarino extends JFrame implements Runnable{
 		contentPane.add(taConsole);
 
 	}
-	
-
 
 	public void convertMsgToCommand(Mensagem msg) {
 		System.out.println(msg.toString());
@@ -248,10 +241,14 @@ public class Dancarino extends JFrame implements Runnable{
 		myPrint(msg.toString());
 		ACCOES acao = ACCOES.getAcaoWithValue(ordem);
 		switch (acao) {
-		
+
 		case PARAR_FALSE:
 			robot.parar(false);
-			
+			if (spy.isGravar()) {
+				lastCommand = ACCOES.PARAR_FALSE.name();
+				spy.getCanRead().release();
+			}
+
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -261,6 +258,10 @@ public class Dancarino extends JFrame implements Runnable{
 			break;
 		case RETA:
 			robot.reta(bd.getDistancia());
+			if (spy.isGravar()) {
+				lastCommand = ACCOES.RETA.name() + "/dist=" + bd.getDistancia();
+				spy.getCanRead().release();
+			}
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -270,6 +271,10 @@ public class Dancarino extends JFrame implements Runnable{
 			break;
 		case CDIR:
 			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
+			if (spy.isGravar()) {
+				lastCommand = ACCOES.CDIR.name() + "/raio=" + bd.getRaio() + "/ang=" + bd.getAngulo();
+				spy.getCanRead().release();
+			}
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -279,6 +284,10 @@ public class Dancarino extends JFrame implements Runnable{
 			break;
 		case CESQ:
 			robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
+			if (spy.isGravar()) {
+				lastCommand = ACCOES.CESQ.name() + "/raio=" + bd.getRaio() + "/ang=" + bd.getAngulo();
+				spy.getCanRead().release();
+			}
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -288,6 +297,10 @@ public class Dancarino extends JFrame implements Runnable{
 			break;
 		case BACK:
 			robot.reta(-bd.getDistancia());
+			if (spy.isGravar()) {
+				lastCommand = ACCOES.BACK.name() + "/dist=" + bd.getDistancia();
+				spy.getCanRead().release();
+			}
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -297,6 +310,10 @@ public class Dancarino extends JFrame implements Runnable{
 			break;
 		case PARAR_TRUE:
 			robot.parar(true);
+			if (spy.isGravar()) {
+				lastCommand = ACCOES.PARAR_TRUE.name();
+				spy.getCanRead().release();
+			}
 			try {
 				Thread.sleep(1500);
 			} catch (InterruptedException e) {
@@ -308,34 +325,42 @@ public class Dancarino extends JFrame implements Runnable{
 
 	}
 
+	public void startSpy() {
+		SpyRobot spy = new SpyRobot(this);
+		Thread t = new Thread(spy);
+		t.setName("Espiao-" + Thread.currentThread().getName());
+		t.start();
+	}
+
 	public void startRobot() {
-		robot = new MyRobotLego(spy);
+		robot = new MyRobotLego();
 		robot.setNomeRobot(nomeRobot);
 		robot.startRobot();
 	}
-	
+
+	public MyRobotLego getRobot() {
+		return robot;
+	}
+
 	public void startCommands() {
 		atividade.release();
 		parar = false;
-		
+
 	}
-	
+
 	public void stopCommands() {
-	
+
 		parar = true;
-		estado="dormir";
+		estado = "dormir";
 	}
-	
+
 	public void killApp() {
 		estado = "kill";
 		dispose();
 		parar = true;
 		onoff = false;
-		
-		
+
 	}
-	
-	
 
 	public String getNomeRobot() {
 		return nomeRobot;
@@ -349,20 +374,28 @@ public class Dancarino extends JFrame implements Runnable{
 		ultimosComandos.add(msg);
 		showComandosExecutados();
 	}
-	
+
 	public void showComandosExecutados() {
 		String textCommand = "";
 		taConsole.setText("");
 		for (int j = 1; j < 11; j++) {
-			int counter = ultimosComandos.size()-j;
-			if(counter >= 0 && ultimosComandos.get(counter)!=null && !ultimosComandos.get(counter).isEmpty()) {
+			int counter = ultimosComandos.size() - j;
+			if (counter >= 0 && ultimosComandos.get(counter) != null && !ultimosComandos.get(counter).isEmpty()) {
 				textCommand = ultimosComandos.get(counter) + "\n";
-				taConsole.setText(textCommand+taConsole.getText() );
-			}else {
+				taConsole.setText(textCommand + taConsole.getText());
+			} else {
 				break;
 			}
-			
+
 		}
 	}
-	
+
+	public String getLastCommand() {
+		return lastCommand;
+	}
+
+	public void setLastCommand(String lastCommand) {
+		this.lastCommand = lastCommand;
+	}
+
 }

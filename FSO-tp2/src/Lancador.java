@@ -258,11 +258,9 @@ public class Lancador extends JFrame {
 		JButton btnStartSpy = new JButton("Inicia Espiao");
 		btnStartSpy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int randomDancarino = (int) (Math.random() * counterDancarino);
-				SpyRobot spy = new SpyRobot(canal);
-				Thread t = new Thread(spy);
-				t.setName("Espiao -> Dancarino-" + randomDancarino);
-				t.start();
+				if (!dancarinos.isEmpty()) {
+					dancarinos.entrySet().stream().forEach(d -> d.getValue().startSpy());
+				}
 			}
 		});
 		btnStartSpy.setBounds(350, 494, 193, 38);

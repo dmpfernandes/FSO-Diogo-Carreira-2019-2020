@@ -33,10 +33,10 @@ public class SpyRobot extends JFrame implements Runnable{
 	private JButton btnGravarTrajetoria;
 	private JButton btnReproduzir;
 	private JTextField txtFldNomeFicheiro;
-	private boolean onoff, recording = false;
+	private boolean btnGravar, btnEscrever,onoff, recording = false;
 	private String estado = "dormir";
-	private Semaphore atividade;
-	private MyRobotLego robot;
+	private Semaphore atividade, canRead;
+	private Dancarino dancarino;
 	
 	private File file;
 	private RandomAccessFile memoryMappedFile;
@@ -44,9 +44,10 @@ public class SpyRobot extends JFrame implements Runnable{
 	protected String nomeFicheiro = "Default_Spy_Name";
 	private JTextArea textArea;
 
-	public SpyRobot(MyRobotLego robot) {
+	public SpyRobot(Dancarino dancarino) {
 		atividade = new Semaphore(0);
-		this.robot = robot;
+		canRead = new Semaphore(0);
+		this.dancarino = dancarino;
 		
 		//cria o ficheiro e subsequente buffer para o qual vai escrever
 		try {
@@ -67,9 +68,17 @@ public class SpyRobot extends JFrame implements Runnable{
 		btnGravarTrajetoria = new JButton("Gravar trajetoria");
 		btnGravarTrajetoria.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				recording = true;
-				estado = "ler";
-				atividade.release();
+				btnGravar = !btnGravar;
+				if(btnGravar) {
+					recording = true;
+					estado = "ler";
+					atividade.release();
+				}
+				else {
+					recording = false;
+					estado = "dormir";
+				}
+				
 			}
 		});
 		btnGravarTrajetoria.setBounds(24, 111, 172, 48);
@@ -78,8 +87,14 @@ public class SpyRobot extends JFrame implements Runnable{
 		btnReproduzir = new JButton("Reproduzir trajetoria");
 		btnReproduzir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				estado = "escrever";
-				atividade.release();
+				btnEscrever = !btnEscrever;
+				if(btnEscrever) {
+					estado = "escrever";
+					atividade.release();
+				}else {
+					estado = "dormir";
+				}
+				
 			}
 		});
 		btnReproduzir.setBounds(24, 182, 172, 48);
@@ -115,7 +130,7 @@ public class SpyRobot extends JFrame implements Runnable{
 				} catch (InterruptedException e) {}
 				break;
 			case "ler":
-			
+				gravarMensagem();
 				break;
 			case "escrever":
 				reproduzirTrajetoria();
@@ -129,16 +144,53 @@ public class SpyRobot extends JFrame implements Runnable{
 	}
 
 	private void reproduzirTrajetoria() {
-		IntBuffer fileContent = map.asIntBuffer();
-		while(fileContent.hasRemaining()) {
-			int numero = fileContent.get();
-			int ordem = fileContent.get();
-
+		while(map.hasRemaining()){
+			String lastCommand = "";
+			while(map.getChar()!=',') {
+				lastCommand += map.getChar();
+			}
+			processLastCommand(lastCommand);
 		}
+		
+		
 		
 	}
 
-	public void gravarMensagem(Map<String, Object> args) {
+	private void processLastCommand(String msg) {
+		String[] args = msg.split("/");
+		switch(args[0]) {
+		case "PARAR_FALSE":
+			dancarino.getRobot().parar(false);
+			break;
+		case "RETA":
+			dancarino.getRobot().reta(Integer.valueOf(args[1].split("=")[1]));
+			break;
+		case "CDIR":
+			dancarino.getRobot().curvarDireita(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
+			break;
+		case "CESQ":
+			dancarino.getRobot().curvarEsquerda(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
+			break;
+		case "BACK":
+			dancarino.getRobot().reta(-Integer.valueOf(args[1].split("=")[1]));
+			break;
+		case "PARAR_TRUE":
+			dancarino.getRobot().parar(true);
+			break;
+		
+		}
+	}
+
+	public void gravarMensagem() {
+		try {
+			canRead.acquire();
+			String lastCommand = dancarino.getLastCommand()+",";
+			for (char c :  lastCommand.toCharArray()) {
+				map.putChar(c);
+			}
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+		}
 		
 		
 	}
@@ -150,4 +202,14 @@ public class SpyRobot extends JFrame implements Runnable{
 	public boolean isRecording() {
 		return recording;
 	}
+
+	public Semaphore getCanRead() {
+		return canRead;
+	}
+
+	public boolean isGravar() {
+		return btnGravar;
+	}
+
+
 }

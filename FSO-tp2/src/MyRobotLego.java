@@ -7,13 +7,11 @@ import java.util.Map;
 
 public class MyRobotLego {
 private String nomeRobot;
-private SpyRobot spy;
 
 //	private RobotLegoEV3 robot;
 	
-	public MyRobotLego(SpyRobot spy) {
+	public MyRobotLego() {
 //		robot = new RobotLegoEV3();
-		this.spy = spy;
 		
 	}
 	
@@ -27,7 +25,6 @@ private SpyRobot spy;
 		System.out.println("Ligacao Terminada");
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put("acao", ACCOES.CLOSE);
-		sendToSpy(args);
 	}
 	
 	public void reta(int distancia) {
@@ -37,7 +34,6 @@ private SpyRobot spy;
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put("acao", ACCOES.RETA);
 		args.put("distancia", distancia);
-		sendToSpy(args);
 	}
 	
 	public void curvarEsquerda(int raio, int angulo) {
@@ -48,7 +44,6 @@ private SpyRobot spy;
 		args.put("acao", ACCOES.CESQ);
 		args.put("raio", raio);
 		args.put("angulo", angulo);
-		sendToSpy(args);
 	}
 	
 	public void curvarDireita(int raio, int angulo) {
@@ -59,7 +54,6 @@ private SpyRobot spy;
 		args.put("acao", ACCOES.CDIR);
 		args.put("raio", raio);
 		args.put("angulo", angulo);
-		sendToSpy(args);
 	}
 	
 	public void parar(boolean parar) {
@@ -72,16 +66,10 @@ private SpyRobot spy;
 		} else {
 			args.put("acao", ACCOES.PARAR_FALSE);
 		}
-		sendToSpy(args);
 	}
 
 	public void setNomeRobot(String text) {
 		nomeRobot = text;
 	}
 	
-	private void sendToSpy(Map<String, Object> args) {
-		if(spy.isOnoff() && spy.isRecording()) {
-			spy.gravarMensagem(args);
-		}
-	}
 }
