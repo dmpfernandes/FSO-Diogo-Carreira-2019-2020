@@ -57,7 +57,7 @@ public class CanalComunicacoes implements Runnable {
 		order.add(id);
 		acessoCanal.release();
 		accao = "escrever";
-//		System.out.println("id : "+id+", CANAL : Numero: " + msg.getNumero() + ", Ordem: " + msg.getOrdem());
+		System.out.println("id : "+id+", CANAL : Numero: " + msg.getNumero() + ", Ordem: " + msg.getOrdem());
 		try {
 			((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphore")).acquire();
 			elementosLivres.acquire();
@@ -89,34 +89,26 @@ public class CanalComunicacoes implements Runnable {
 		acessoCanal.release();
 		accao = "ler";
 		try {
-			if(Thread.currentThread().getName().startsWith("Espiao") && !map.hasRemaining()) {
-				return new Mensagem(-1, -1);
-			} else {
-				((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphore")).acquire();
+			((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphore")).acquire();
 			
-				((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphoreCanRead")).acquire();
-				
-				if ((int) pedidos.get(Thread.currentThread().getName()).get("position") >= MAX_BUFFER) {
-					pedidos.get(Thread.currentThread().getName()).put("position", 0);
-				}
-
-				map.position((int) pedidos.get(Thread.currentThread().getName()).get("position"));
-
-				int numero = map.getInt();
-				int ordem = map.getInt();
-				
-				int pos = map.position();
-				pedidos.get(Thread.currentThread().getName()).put("position", pos);
-				elementosLivres.release();
-				return new Mensagem(numero, ordem);
-
-			}
-			
-			
+			((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphoreCanRead")).acquire();
 		} catch (InterruptedException e) {
 		}
-		return new Mensagem(-1, -1);
+		System.out.println("id : " + Thread.currentThread().getName()+", map position : " + pedidos.get(Thread.currentThread().getName()).get("position"));
+		if ((int) pedidos.get(Thread.currentThread().getName()).get("position") >= MAX_BUFFER) {
+			pedidos.get(Thread.currentThread().getName()).put("position", 0);
+		}
+
+		map.position((int) pedidos.get(Thread.currentThread().getName()).get("position"));
+
+		int numero = map.getInt();
+		int ordem = map.getInt();
 		
+		int pos = map.position();
+		pedidos.get(Thread.currentThread().getName()).put("position", pos);
+		elementosLivres.release();
+		return new Mensagem(numero, ordem);
+
 	}
 
 	public void fecharCanal() {
@@ -139,7 +131,7 @@ public class CanalComunicacoes implements Runnable {
 		args.put("semaphoreCanRead", new Semaphore(0));
 
 		pedidos.put(Thread.currentThread().getName(), args);
-//		System.out.println("type : " + Thread.currentThread().getName());
+		System.out.println("type : " + Thread.currentThread().getName());
 	}
 
 	@Override
@@ -150,13 +142,15 @@ public class CanalComunicacoes implements Runnable {
 			switch (estado) {
 			case "dormir":
 				try {
-					if(order.size() != 0) {
+					
+				
 						acessoCanal.acquire();
 						idx = order.get(0);
 						System.out.println(idx);
 						order.remove(0);
 						estado = "validar";
-					}
+					
+					
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					System.out.println(e.getMessage());
