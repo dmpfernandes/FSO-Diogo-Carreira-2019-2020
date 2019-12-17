@@ -23,13 +23,13 @@ public class CanalComunicacoes implements Runnable {
 
 	private String accao = "";
 	private String estado = "dormir";
-	private String id;
+//	private String id;
 	private int posPut = 0;
 	private int posGet = 0;
 	private Map<String, Map<String, Object>> pedidos;
 	private List<String> order;
 
-	private Semaphore elementosLivres, elementosOcupados, acessoCanal, acessoResource;
+	private Semaphore elementosOcupados, acessoCanal, acessoResource, acessoResourceLer;
 
 	public CanalComunicacoes(String nomeDoFicheiro) {
 		file = new File(nomeDoFicheiro);
@@ -41,10 +41,10 @@ public class CanalComunicacoes implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		elementosLivres = new Semaphore(MAX_BUFFER / 8);
 		elementosOcupados = new Semaphore(0);
 		acessoCanal = new Semaphore(0);
 		acessoResource = new Semaphore(1);
+		acessoResourceLer = new Semaphore(1);
 	}
 
 	public void escreverMsg(Mensagem msg) {
@@ -53,14 +53,13 @@ public class CanalComunicacoes implements Runnable {
 		} catch (InterruptedException e1) {
 	
 		}
-		id = Thread.currentThread().getName();
-		order.add(id);
+		String id = Thread.currentThread().getName();
 		acessoCanal.release();
+		order.add(id);
 		accao = "escrever";
 		System.out.println("id : "+id+", CANAL : Numero: " + msg.getNumero() + ", Ordem: " + msg.getOrdem());
 		try {
-			((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphore")).acquire();
-			elementosLivres.acquire();
+			((Semaphore) pedidos.get(id).get("semaphore")).acquire();
 			if (posPut >= MAX_BUFFER) {
 				posPut = 0;
 			}
@@ -76,27 +75,36 @@ public class CanalComunicacoes implements Runnable {
 	}
 
 	private void releaseDancarinos() {
-		for (Map.Entry e : pedidos.entrySet()) {
-			HashMap<String, Object> hashMap = (HashMap<String, Object>)e.getValue();
-			((Semaphore)hashMap.get("semaphoreCanRead")).release();
+		if(pedidos.entrySet().stream().anyMatch(p -> p.getKey().contains("Dancarino"))) {
+			for (Map.Entry e : pedidos.entrySet()) {
+				HashMap<String, Object> hashMap = (HashMap<String, Object>)e.getValue();
+				((Semaphore)hashMap.get("semaphoreCanRead")).release();
+				((Semaphore)hashMap.get("semaphoreElementosLivres")).release();
+			}
 		}
 	}
-
+	
 	public Mensagem lerMsg() {
-
-		id = Thread.currentThread().getName();
-		order.add(id);
-		acessoCanal.release();
-		accao = "ler";
 		try {
-			((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphore")).acquire();
+			acessoResourceLer.acquire();
+		} catch (InterruptedException e1) {
+	
+		}
+		
+		System.out.println("id : " + Thread.currentThread().getName()+", map position : " + pedidos.get(Thread.currentThread().getName()).get("position"));
+		acessoCanal.release();
+		String id = Thread.currentThread().getName();
+		try {
 			
-			((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphoreCanRead")).acquire();
+			order.add(id);
+			accao = "ler";
+			((Semaphore) pedidos.get(id).get("semaphore")).acquire();
+			
+			((Semaphore) pedidos.get(id).get("semaphoreCanRead")).acquire();
 		} catch (InterruptedException e) {
 		}
-		System.out.println("id : " + Thread.currentThread().getName()+", map position : " + pedidos.get(Thread.currentThread().getName()).get("position"));
-		if ((int) pedidos.get(Thread.currentThread().getName()).get("position") >= MAX_BUFFER) {
-			pedidos.get(Thread.currentThread().getName()).put("position", 0);
+		if ((int) pedidos.get(id).get("position") >= MAX_BUFFER) {
+			pedidos.get(id).put("position", 0);
 		}
 
 		map.position((int) pedidos.get(Thread.currentThread().getName()).get("position"));
@@ -106,7 +114,8 @@ public class CanalComunicacoes implements Runnable {
 		
 		int pos = map.position();
 		pedidos.get(Thread.currentThread().getName()).put("position", pos);
-		elementosLivres.release();
+		((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphoreElementosLivres")).release();
+		acessoResourceLer.release();
 		return new Mensagem(numero, ordem);
 
 	}
@@ -126,12 +135,12 @@ public class CanalComunicacoes implements Runnable {
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put("type", Thread.currentThread().getName());
 
-		args.put("position", posGet);
+		args.put("position", posPut);
 		args.put("semaphore", new Semaphore(0));
 		args.put("semaphoreCanRead", new Semaphore(0));
+		args.put("semaphoreElementosLivres", new Semaphore(MAX_BUFFER / 8));
 
 		pedidos.put(Thread.currentThread().getName(), args);
-		System.out.println("type : " + Thread.currentThread().getName());
 	}
 
 	@Override
@@ -142,13 +151,14 @@ public class CanalComunicacoes implements Runnable {
 			switch (estado) {
 			case "dormir":
 				try {
-					
-				
-						acessoCanal.acquire();
+					acessoCanal.acquire();
+					if(!order.isEmpty()) {
+						
 						idx = order.get(0);
-						System.out.println(idx);
+						System.out.println("order : "+idx);
 						order.remove(0);
 						estado = "validar";
+					}
 					
 					
 				} catch (InterruptedException e) {

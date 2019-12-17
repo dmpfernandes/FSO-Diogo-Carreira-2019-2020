@@ -47,7 +47,8 @@ public class Dancarino extends JFrame implements Runnable {
 	private Semaphore atividade;
 	private boolean parar;
 	private List<String> ultimosComandos;
-
+	private boolean espiaoOnOff = false;
+	
 	private String lastCommand = "";
 
 	public Dancarino(CanalComunicacoes canal) {
@@ -234,9 +235,15 @@ public class Dancarino extends JFrame implements Runnable {
 		taConsole.setBounds(12, 238, 420, 170);
 		contentPane.add(taConsole);
 		
-		JRadioButton rdbtnIniciarEspiao = new JRadioButton("Iniciar Espião");
+		JRadioButton rdbtnIniciarEspiao = new JRadioButton("Iniciar Espiao");
 		rdbtnIniciarEspiao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				espiaoOnOff = !espiaoOnOff;
+				if(espiaoOnOff) {
+					startSpy();
+				}else {
+					spy.killApp();
+				}
 			}
 		});
 		rdbtnIniciarEspiao.setBounds(291, 211, 141, 23);
@@ -245,7 +252,6 @@ public class Dancarino extends JFrame implements Runnable {
 	}
 
 	public void convertMsgToCommand(Mensagem msg) {
-		System.out.println(msg.toString());
 		int ordem = msg.getOrdem();
 		myPrint(msg.toString());
 		ACCOES acao = ACCOES.getAcaoWithValue(ordem);
@@ -253,7 +259,7 @@ public class Dancarino extends JFrame implements Runnable {
 
 		case PARAR_FALSE:
 			robot.parar(false);
-			if (spy.isGravar()) {
+			if (spy != null && spy.isRecording()) {
 				lastCommand = ACCOES.PARAR_FALSE.name();
 				spy.getCanRead().release();
 			}
@@ -267,7 +273,7 @@ public class Dancarino extends JFrame implements Runnable {
 			break;
 		case RETA:
 			robot.reta(bd.getDistancia());
-			if (spy.isGravar()) {
+			if (spy != null && spy.isRecording()) {
 				lastCommand = ACCOES.RETA.name() + "/dist=" + bd.getDistancia();
 				spy.getCanRead().release();
 			}
@@ -280,7 +286,7 @@ public class Dancarino extends JFrame implements Runnable {
 			break;
 		case CDIR:
 			robot.curvarDireita(bd.getRaio(), bd.getAngulo());
-			if (spy.isGravar()) {
+			if (spy != null && spy.isRecording()) {
 				lastCommand = ACCOES.CDIR.name() + "/raio=" + bd.getRaio() + "/ang=" + bd.getAngulo();
 				spy.getCanRead().release();
 			}
@@ -293,7 +299,7 @@ public class Dancarino extends JFrame implements Runnable {
 			break;
 		case CESQ:
 			robot.curvarEsquerda(bd.getRaio(), bd.getAngulo());
-			if (spy.isGravar()) {
+			if (spy != null && spy.isRecording()) {
 				lastCommand = ACCOES.CESQ.name() + "/raio=" + bd.getRaio() + "/ang=" + bd.getAngulo();
 				spy.getCanRead().release();
 			}
@@ -306,7 +312,7 @@ public class Dancarino extends JFrame implements Runnable {
 			break;
 		case BACK:
 			robot.reta(-bd.getDistancia());
-			if (spy.isGravar()) {
+			if (spy != null && spy.isRecording()) {
 				lastCommand = ACCOES.BACK.name() + "/dist=" + bd.getDistancia();
 				spy.getCanRead().release();
 			}
@@ -319,7 +325,7 @@ public class Dancarino extends JFrame implements Runnable {
 			break;
 		case PARAR_TRUE:
 			robot.parar(true);
-			if (spy.isGravar()) {
+			if (spy != null && spy.isRecording()) {
 				lastCommand = ACCOES.PARAR_TRUE.name();
 				spy.getCanRead().release();
 			}
@@ -405,5 +411,10 @@ public class Dancarino extends JFrame implements Runnable {
 
 	public void setLastCommand(String lastCommand) {
 		this.lastCommand = lastCommand;
+	}
+
+
+	public boolean isEspiaoOnOff() {
+		return espiaoOnOff;
 	}
 }

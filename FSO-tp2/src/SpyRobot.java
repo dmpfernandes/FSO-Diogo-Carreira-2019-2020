@@ -5,6 +5,7 @@ import java.io.RandomAccessFile;
 import java.nio.IntBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -43,10 +44,13 @@ public class SpyRobot extends JFrame implements Runnable{
 	private MappedByteBuffer map;
 	protected String nomeFicheiro = "Default_Spy_Name";
 	private JTextArea textArea;
+	private List<String> ultimosComandos;
+
 
 	public SpyRobot(Dancarino dancarino) {
 		atividade = new Semaphore(0);
 		canRead = new Semaphore(0);
+		ultimosComandos = new ArrayList<String>();
 		this.dancarino = dancarino;
 		
 		//cria o ficheiro e subsequente buffer para o qual vai escrever
@@ -157,6 +161,7 @@ public class SpyRobot extends JFrame implements Runnable{
 	}
 
 	private void processLastCommand(String msg) {
+		myPrint("escrever : "+msg);
 		String[] args = msg.split("/");
 		switch(args[0]) {
 		case "PARAR_FALSE":
@@ -184,7 +189,9 @@ public class SpyRobot extends JFrame implements Runnable{
 	public void gravarMensagem() {
 		try {
 			canRead.acquire();
+			myPrint("gravar : "+dancarino.getLastCommand());
 			String lastCommand = dancarino.getLastCommand()+",";
+			
 			for (char c :  lastCommand.toCharArray()) {
 				map.putChar(c);
 			}
@@ -194,11 +201,39 @@ public class SpyRobot extends JFrame implements Runnable{
 		
 		
 	}
+	
+	public void myPrint(String msg) {
+		ultimosComandos.add(msg);
+		showComandosExecutados();
+	}
+
+	public void showComandosExecutados() {
+		String textCommand = "";
+		textArea.setText("");
+		for (int j = 1; j < 11; j++) {
+			int counter = ultimosComandos.size() - j;
+			if (counter >= 0 && ultimosComandos.get(counter) != null && !ultimosComandos.get(counter).isEmpty()) {
+				textCommand = ultimosComandos.get(counter) + "\n";
+				textArea.setText(textCommand + textArea.getText());
+			} else {
+				break;
+			}
+
+		}
+	}
+	
+	public void killApp() {
+		estado = "kill";
+		dispose();
+		onoff = false;
+
+	}
+
 
 	public boolean isOnoff() {
 		return onoff;
 	}
-
+	
 	public boolean isRecording() {
 		return recording;
 	}
@@ -207,9 +242,7 @@ public class SpyRobot extends JFrame implements Runnable{
 		return canRead;
 	}
 
-	public boolean isGravar() {
-		return btnGravar;
-	}
+
 
 
 }
