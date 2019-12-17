@@ -34,33 +34,27 @@ public class SpyRobot extends JFrame implements Runnable{
 	private JButton btnGravarTrajetoria;
 	private JButton btnReproduzir;
 	private JTextField txtFldNomeFicheiro;
-	private boolean btnGravar, btnEscrever,onoff, recording = false;
+	private boolean btnGravar, btnEscrever, recording = false;
+	private boolean onoff = true;
 	private String estado = "dormir";
-	private Semaphore atividade, canRead;
+	private Semaphore canRead;
 	private Dancarino dancarino;
 	
 	private File file;
 	private RandomAccessFile memoryMappedFile;
 	private MappedByteBuffer map;
-	protected String nomeFicheiro = "Default_Spy_Name";
+	protected String nomeFicheiro = "";
 	private JTextArea textArea;
 	private List<String> ultimosComandos;
 
 
 	public SpyRobot(Dancarino dancarino) {
-		atividade = new Semaphore(0);
 		canRead = new Semaphore(0);
 		ultimosComandos = new ArrayList<String>();
 		this.dancarino = dancarino;
 		
 		//cria o ficheiro e subsequente buffer para o qual vai escrever
-		try {
-			file = new File(nomeFicheiro);
-			memoryMappedFile = new RandomAccessFile(file, "rw");
-			map = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
@@ -72,17 +66,17 @@ public class SpyRobot extends JFrame implements Runnable{
 		btnGravarTrajetoria = new JButton("Gravar trajetoria");
 		btnGravarTrajetoria.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				btnGravar = !btnGravar;
-				if(btnGravar) {
-					recording = true;
-					estado = "ler";
-					atividade.release();
+				if(nomeFicheiro != "") {
+					btnGravar = !btnGravar;
+					if(btnGravar) {
+						recording = true;
+						estado = "ler";
+					}
+					else {
+						recording = false;
+						estado = "dormir";
+					}
 				}
-				else {
-					recording = false;
-					estado = "dormir";
-				}
-				
 			}
 		});
 		btnGravarTrajetoria.setBounds(24, 111, 172, 48);
@@ -91,14 +85,14 @@ public class SpyRobot extends JFrame implements Runnable{
 		btnReproduzir = new JButton("Reproduzir trajetoria");
 		btnReproduzir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				btnEscrever = !btnEscrever;
-				if(btnEscrever) {
-					estado = "escrever";
-					atividade.release();
-				}else {
-					estado = "dormir";
+				if(nomeFicheiro != "") {
+					btnEscrever = !btnEscrever;
+					if(btnEscrever) {
+						estado = "escrever";
+					}else {
+						estado = "dormir";
+					}
 				}
-				
 			}
 		});
 		btnReproduzir.setBounds(24, 182, 172, 48);
@@ -107,7 +101,9 @@ public class SpyRobot extends JFrame implements Runnable{
 		txtFldNomeFicheiro = new JTextField();
 		txtFldNomeFicheiro.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				nomeFicheiro = txtFldNomeFicheiro.getText();
+				nomeFicheiro = txtFldNomeFicheiro.getText()!=""?txtFldNomeFicheiro.getText():"";
+				myPrint(nomeFicheiro);
+				estado = "validar";
 			}
 		});
 		txtFldNomeFicheiro.setBounds(75, 46, 121, 26);
@@ -130,7 +126,7 @@ public class SpyRobot extends JFrame implements Runnable{
 			switch(estado) {
 			case "dormir":
 				try {
-					atividade.acquire();
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {}
 				break;
 			case "ler":
@@ -141,6 +137,18 @@ public class SpyRobot extends JFrame implements Runnable{
 				break;
 			case "kill":
 				
+				break;
+			case "validar":
+				if(nomeFicheiro != "") {
+					try {
+						file = new File(nomeFicheiro);
+						memoryMappedFile = new RandomAccessFile(file, "rw");
+						map = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
+					} catch (Exception exc) {
+						exc.printStackTrace();
+					}
+					estado = "dormir";
+				}
 				break;
 			}
 		}
@@ -188,6 +196,7 @@ public class SpyRobot extends JFrame implements Runnable{
 
 	public void gravarMensagem() {
 		try {
+			System.out.println("entrou no gravar");
 			canRead.acquire();
 			myPrint("gravar : "+dancarino.getLastCommand());
 			String lastCommand = dancarino.getLastCommand()+",";

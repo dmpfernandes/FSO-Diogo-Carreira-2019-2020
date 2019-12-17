@@ -255,6 +255,10 @@ public class Dancarino extends JFrame implements Runnable {
 		int ordem = msg.getOrdem();
 		myPrint(msg.toString());
 		ACCOES acao = ACCOES.getAcaoWithValue(ordem);
+		if (spy != null && spy.isRecording()) {
+			System.out.println(msg.toString());
+		}
+		
 		switch (acao) {
 
 		case PARAR_FALSE:
