@@ -18,6 +18,7 @@ import javax.swing.border.EmptyBorder;
 
 import TrabalhoPratico2.canalComunicacao.CanalComunicacoes;
 import TrabalhoPratico2.canalComunicacao.Mensagem;
+import javax.swing.JRadioButton;
 
 public class Dancarino extends JFrame implements Runnable {
 
@@ -232,6 +233,14 @@ public class Dancarino extends JFrame implements Runnable {
 		taConsole.setEditable(false);
 		taConsole.setBounds(12, 238, 420, 170);
 		contentPane.add(taConsole);
+		
+		JRadioButton rdbtnIniciarEspiao = new JRadioButton("Iniciar Espião");
+		rdbtnIniciarEspiao.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		rdbtnIniciarEspiao.setBounds(291, 211, 141, 23);
+		contentPane.add(rdbtnIniciarEspiao);
 
 	}
 
@@ -397,5 +406,4 @@ public class Dancarino extends JFrame implements Runnable {
 	public void setLastCommand(String lastCommand) {
 		this.lastCommand = lastCommand;
 	}
-
 }
