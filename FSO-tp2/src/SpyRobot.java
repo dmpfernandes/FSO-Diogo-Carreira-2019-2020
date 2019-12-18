@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
@@ -31,8 +32,8 @@ public class SpyRobot extends JFrame implements Runnable{
 	private static final long serialVersionUID = 1L;
 	private static final long MAX_BUFFER = 2000000;
 	private JPanel contentPane;
-	private JButton btnGravarTrajetoria;
-	private JButton btnReproduzir;
+	private JRadioButton btnGravarTrajetoria;
+	private JRadioButton btnReproduzir;
 	private JTextField txtFldNomeFicheiro;
 	private boolean btnGravar, btnEscrever, recording = false;
 	public void setRecording(boolean recording) {
@@ -67,7 +68,7 @@ public class SpyRobot extends JFrame implements Runnable{
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		btnGravarTrajetoria = new JButton("Gravar trajetoria");
+		btnGravarTrajetoria = new JRadioButton("Gravar trajetoria");
 		btnGravarTrajetoria.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(nomeFicheiro != "") {
@@ -86,16 +87,15 @@ public class SpyRobot extends JFrame implements Runnable{
 		btnGravarTrajetoria.setBounds(24, 111, 172, 48);
 		contentPane.add(btnGravarTrajetoria);
 		
-		btnReproduzir = new JButton("Reproduzir trajetoria");
+		btnReproduzir = new JRadioButton("Reproduzir trajetoria");
 		btnReproduzir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(nomeFicheiro != "") {
 					btnEscrever = !btnEscrever;
 					if(btnEscrever) {
-						dancarino.setSpyPlayCoreo(true);
+						dancarino.setEstado("atuarSobreSpy");
 						estado = "escrever";
 					}else {	
-						dancarino.setSpyPlayCoreo(false);
 						estado = "dormir";
 					}
 				}
@@ -139,6 +139,7 @@ public class SpyRobot extends JFrame implements Runnable{
 				gravarMensagem();
 				break;
 			case "escrever":
+				dancarino.startCommands();
 				reproduzirTrajetoria();
 				break;
 			case "kill":
@@ -148,6 +149,7 @@ public class SpyRobot extends JFrame implements Runnable{
 				if(nomeFicheiro != "") {
 					try {
 						file = new File(nomeFicheiro);
+						this.file.createNewFile();
 						memoryMappedFile = new RandomAccessFile(file, "rw");
 						map = memoryMappedFile.getChannel().map(FileChannel.MapMode.READ_WRITE, 0, MAX_BUFFER);
 					} catch (Exception exc) {
@@ -166,9 +168,12 @@ public class SpyRobot extends JFrame implements Runnable{
 			System.out.println("entrou no reproduzir");
 
 			String lastCommand = "";
-			while(map.getChar()!=',') {
-				lastCommand += map.getChar();
+			char c;
+			map.position(0);
+			while ((c = map.getChar()) != '\0') {
+				lastCommand += c;
 			}
+			System.out.println("Command: " + lastCommand);
 			dancarino.playCommandFromSpy(lastCommand);
 		}
 		dancarino.setEstado("dormir");
@@ -182,13 +187,14 @@ public class SpyRobot extends JFrame implements Runnable{
 			if(recording) {
 				canRead.acquire();
 			} else {
+				
 				estado = "dormir";
 				return;
 			}
 			
 			
 			myPrint("gravar : "+dancarino.getLastCommand());
-			String lastCommand = dancarino.getLastCommand()+",";
+			String lastCommand = dancarino.getLastCommand()+'\0';
 			
 			for (char c :  lastCommand.toCharArray()) {
 				map.putChar(c);
@@ -200,7 +206,7 @@ public class SpyRobot extends JFrame implements Runnable{
 		
 	}
 	
-	public void myPrint(String msg) {
+	private void myPrint(String msg) {
 		ultimosComandos.add(msg);
 		showComandosExecutados();
 	}

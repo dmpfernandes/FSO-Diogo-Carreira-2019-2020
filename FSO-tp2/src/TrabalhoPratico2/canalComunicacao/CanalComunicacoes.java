@@ -28,6 +28,7 @@ public class CanalComunicacoes implements Runnable {
 	private int posGet = 0;
 	private Map<String, Map<String, Object>> pedidos;
 	private List<String> order;
+	private boolean hasCoreografos = false;
 
 	private Semaphore elementosOcupados, acessoCanal, acessoResource, acessoResourceLer;
 
@@ -79,7 +80,17 @@ public class CanalComunicacoes implements Runnable {
 			for (Map.Entry e : pedidos.entrySet()) {
 				HashMap<String, Object> hashMap = (HashMap<String, Object>)e.getValue();
 				((Semaphore)hashMap.get("semaphoreCanRead")).release();
+				
 				((Semaphore)hashMap.get("semaphoreElementosLivres")).release();
+			}
+		}
+	}
+	
+	private void releaseCanReadDancarinos() {
+		if(pedidos.entrySet().stream().anyMatch(p -> p.getKey().contains("Dancarino"))) {
+			for (Map.Entry e : pedidos.entrySet()) {
+				HashMap<String, Object> hashMap = (HashMap<String, Object>)e.getValue();
+				((Semaphore)hashMap.get("semaphoreCanRead")).release();
 			}
 		}
 	}
@@ -103,6 +114,10 @@ public class CanalComunicacoes implements Runnable {
 			((Semaphore) pedidos.get(id).get("semaphoreCanRead")).acquire();
 		} catch (InterruptedException e) {
 		}
+		if(!hasCoreografos) {
+			return new Mensagem(-1, -1);
+		}
+		
 		if ((int) pedidos.get(id).get("position") >= MAX_BUFFER) {
 			pedidos.get(id).put("position", 0);
 		}
@@ -121,14 +136,13 @@ public class CanalComunicacoes implements Runnable {
 	}
 
 	public void fecharCanal() {
-
-		try {
-			this.memoryMappedFile.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+			String threadName = Thread.currentThread().getName();
+			pedidos.remove(threadName);
+			if(!pedidos.entrySet().stream().anyMatch(p -> p.getKey().contains("Coreografo"))) {
+				hasCoreografos = false;
+				releaseCanReadDancarinos();
+				
+			}
 	}
 
 	public void open() {
@@ -141,6 +155,10 @@ public class CanalComunicacoes implements Runnable {
 		args.put("semaphoreElementosLivres", new Semaphore(MAX_BUFFER / 8));
 
 		pedidos.put(Thread.currentThread().getName(), args);
+		
+		if(Thread.currentThread().getName().contains("Coreografo")) {
+			hasCoreografos = true;
+		}
 	}
 
 	@Override
@@ -187,7 +205,4 @@ public class CanalComunicacoes implements Runnable {
 		}
 	}
 	
-	public boolean mapHasRemaining() {
-		return map.hasRemaining();
-	}
 }

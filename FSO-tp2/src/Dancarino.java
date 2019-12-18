@@ -45,7 +45,6 @@ public class Dancarino extends JFrame implements Runnable {
 	private boolean onoff = true;
 	private String estado = "atuar";
 	private Semaphore atividade;
-	private boolean parar;
 	private List<String> ultimosComandos;
 	private boolean espiaoOnOff, spyPlayCoreo = false;
 	
@@ -65,25 +64,20 @@ public class Dancarino extends JFrame implements Runnable {
 	public void run() {
 		canal.open();
 		while (onoff) {
+			System.out.println("ESTADO DANCARINO - " +estado);
 			switch (estado) {
 			case "dormir":
 				try {
 					atividade.acquire();
-					estado = "atuar";
+					
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 				}
 				break;
 			case "atuar":
-				if(canal.mapHasRemaining() && !spyPlayCoreo) {
 					Mensagem msg = canal.lerMsg();
 //					System.out.println(msg.toString());
 					convertMsgToCommand(msg);
-				} else if(spyPlayCoreo) {
-					estado = "atuarSobreSpy";
-				} else {
-					estado = "dormir";
-				}
 				break;
 			case "atuarSobreSpy":
 				spy.reproduzirTrajetoria();
@@ -348,6 +342,9 @@ public class Dancarino extends JFrame implements Runnable {
 				e.printStackTrace();
 			}
 			break;
+		case DO_NOTHING:
+			
+			break;
 		}
 	}
 	
@@ -357,21 +354,27 @@ public class Dancarino extends JFrame implements Runnable {
 		switch(args[0]) {
 		case "PARAR_FALSE":
 			robot.parar(false);
+			myPrint("Spy: " + args[0] + "bool:" + args[1]);
 			break;
 		case "RETA":
 			robot.reta(Integer.valueOf(args[1].split("=")[1]));
+			myPrint("Spy: " + args[0] + "distancia:" + args[1]);
 			break;
 		case "CDIR":
 			robot.curvarDireita(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
+			myPrint("Spy: " + args[0] + "raio: " + args[1] + " ang: " + args[2]);
 			break;
 		case "CESQ":
 			robot.curvarEsquerda(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
+			myPrint("Spy: " + args[0] + "raio: " + args[1] + " ang: " + args[2]);
 			break;
 		case "BACK":
 			robot.reta(-Integer.valueOf(args[1].split("=")[1]));
+			myPrint("Spy: " + args[0] + "distancia: -" + args[1]);
 			break;
 		case "PARAR_TRUE":
 			robot.parar(true);
+			myPrint("Spy: " + args[0] + "bool:" + args[1]);			
 			break;
 		
 		}
@@ -396,18 +399,15 @@ public class Dancarino extends JFrame implements Runnable {
 
 	public void startCommands() {
 		atividade.release();
-		parar = false;
 	}
 
 	public void stopCommands() {
-		parar = true;
 		estado = "dormir";
 	}
 
 	public void killApp() {
 		estado = "kill";
 		dispose();
-		parar = true;
 		onoff = false;
 
 	}
