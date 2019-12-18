@@ -259,7 +259,8 @@ public class Lancador extends JFrame {
 		btnStartSpy.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (!dancarinos.isEmpty()) {
-					dancarinos.entrySet().stream().filter(d -> !d.getValue().isEspiaoOnOff()).forEach(d -> d.getValue().startSpy());
+					dancarinos.entrySet().stream().filter(d -> 
+						!d.getValue().isEspiaoOnOff()).forEach(d -> d.getValue().startSpy());
 				}
 			}
 		});

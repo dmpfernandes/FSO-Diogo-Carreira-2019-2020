@@ -186,4 +186,8 @@ public class CanalComunicacoes implements Runnable {
 			}
 		}
 	}
+	
+	public boolean mapHasRemaining() {
+		return map.hasRemaining();
+	}
 }

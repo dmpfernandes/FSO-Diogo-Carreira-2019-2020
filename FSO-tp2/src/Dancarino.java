@@ -47,7 +47,7 @@ public class Dancarino extends JFrame implements Runnable {
 	private Semaphore atividade;
 	private boolean parar;
 	private List<String> ultimosComandos;
-	private boolean espiaoOnOff = false;
+	private boolean espiaoOnOff, spyPlayCoreo = false;
 	
 	private String lastCommand = "";
 
@@ -75,10 +75,18 @@ public class Dancarino extends JFrame implements Runnable {
 				}
 				break;
 			case "atuar":
-				Mensagem msg = canal.lerMsg();
-//				System.out.println(msg.toString());
-				convertMsgToCommand(msg);
-
+				if(canal.mapHasRemaining() && !spyPlayCoreo) {
+					Mensagem msg = canal.lerMsg();
+//					System.out.println(msg.toString());
+					convertMsgToCommand(msg);
+				} else if(spyPlayCoreo) {
+					estado = "atuarSobreSpy";
+				} else {
+					estado = "dormir";
+				}
+				break;
+			case "atuarSobreSpy":
+				spy.reproduzirTrajetoria();
 				break;
 			case "kill":
 
@@ -341,11 +349,36 @@ public class Dancarino extends JFrame implements Runnable {
 			}
 			break;
 		}
-
+	}
+	
+	public void playCommandFromSpy(String msg) {
+		myPrint("escrever : "+msg);
+		String[] args = msg.split("/");
+		switch(args[0]) {
+		case "PARAR_FALSE":
+			robot.parar(false);
+			break;
+		case "RETA":
+			robot.reta(Integer.valueOf(args[1].split("=")[1]));
+			break;
+		case "CDIR":
+			robot.curvarDireita(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
+			break;
+		case "CESQ":
+			robot.curvarEsquerda(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
+			break;
+		case "BACK":
+			robot.reta(-Integer.valueOf(args[1].split("=")[1]));
+			break;
+		case "PARAR_TRUE":
+			robot.parar(true);
+			break;
+		
+		}
 	}
 
 	public void startSpy() {
-		SpyRobot spy = new SpyRobot(this);
+		spy = new SpyRobot(this);
 		Thread t = new Thread(spy);
 		t.setName("Espiao-" + Thread.currentThread().getName());
 		t.start();
@@ -364,11 +397,9 @@ public class Dancarino extends JFrame implements Runnable {
 	public void startCommands() {
 		atividade.release();
 		parar = false;
-
 	}
 
 	public void stopCommands() {
-
 		parar = true;
 		estado = "dormir";
 	}
@@ -417,8 +448,27 @@ public class Dancarino extends JFrame implements Runnable {
 		this.lastCommand = lastCommand;
 	}
 
-
 	public boolean isEspiaoOnOff() {
 		return espiaoOnOff;
+	}
+
+
+	public boolean isSpyPlayCoreo() {
+		return spyPlayCoreo;
+	}
+
+
+	public void setSpyPlayCoreo(boolean spyPlayCoreo) {
+		this.spyPlayCoreo = spyPlayCoreo;
+	}
+
+
+	public String getEstado() {
+		return estado;
+	}
+
+
+	public void setEstado(String estado) {
+		this.estado = estado;
 	}
 }

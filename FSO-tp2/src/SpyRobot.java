@@ -35,6 +35,10 @@ public class SpyRobot extends JFrame implements Runnable{
 	private JButton btnReproduzir;
 	private JTextField txtFldNomeFicheiro;
 	private boolean btnGravar, btnEscrever, recording = false;
+	public void setRecording(boolean recording) {
+		this.recording = recording;
+	}
+
 	private boolean onoff = true;
 	private String estado = "dormir";
 	private Semaphore canRead;
@@ -88,8 +92,10 @@ public class SpyRobot extends JFrame implements Runnable{
 				if(nomeFicheiro != "") {
 					btnEscrever = !btnEscrever;
 					if(btnEscrever) {
+						dancarino.setSpyPlayCoreo(true);
 						estado = "escrever";
-					}else {
+					}else {	
+						dancarino.setSpyPlayCoreo(false);
 						estado = "dormir";
 					}
 				}
@@ -155,49 +161,32 @@ public class SpyRobot extends JFrame implements Runnable{
 		
 	}
 
-	private void reproduzirTrajetoria() {
+	public void reproduzirTrajetoria() {
 		while(map.hasRemaining()){
+			System.out.println("entrou no reproduzir");
+
 			String lastCommand = "";
 			while(map.getChar()!=',') {
 				lastCommand += map.getChar();
 			}
-			processLastCommand(lastCommand);
+			dancarino.playCommandFromSpy(lastCommand);
 		}
-		
-		
-		
+		dancarino.setEstado("dormir");
 	}
 
-	private void processLastCommand(String msg) {
-		myPrint("escrever : "+msg);
-		String[] args = msg.split("/");
-		switch(args[0]) {
-		case "PARAR_FALSE":
-			dancarino.getRobot().parar(false);
-			break;
-		case "RETA":
-			dancarino.getRobot().reta(Integer.valueOf(args[1].split("=")[1]));
-			break;
-		case "CDIR":
-			dancarino.getRobot().curvarDireita(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
-			break;
-		case "CESQ":
-			dancarino.getRobot().curvarEsquerda(Integer.valueOf(args[1].split("=")[1]),Integer.valueOf(args[2].split("=")[1]));
-			break;
-		case "BACK":
-			dancarino.getRobot().reta(-Integer.valueOf(args[1].split("=")[1]));
-			break;
-		case "PARAR_TRUE":
-			dancarino.getRobot().parar(true);
-			break;
-		
-		}
-	}
+	
 
 	public void gravarMensagem() {
 		try {
 			System.out.println("entrou no gravar");
-			canRead.acquire();
+			if(recording) {
+				canRead.acquire();
+			} else {
+				estado = "dormir";
+				return;
+			}
+			
+			
 			myPrint("gravar : "+dancarino.getLastCommand());
 			String lastCommand = dancarino.getLastCommand()+",";
 			
