@@ -42,7 +42,7 @@ public class CanalComunicacoes implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		elementosOcupados = new Semaphore(0);
+		elementosOcupados = new Semaphore(MAX_BUFFER/8);
 		acessoCanal = new Semaphore(0);
 		acessoResource = new Semaphore(1);
 		acessoResourceLer = new Semaphore(1);
@@ -70,22 +70,17 @@ public class CanalComunicacoes implements Runnable {
 			posPut += 8;
 		} catch (InterruptedException e) {
 		}
-		elementosOcupados.release();
-		releaseDancarinos();
+		try {
+			elementosOcupados.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		releaseCanReadDancarinos();
 		acessoResource.release();
 	}
 
-	private void releaseDancarinos() {
-		if(pedidos.entrySet().stream().anyMatch(p -> p.getKey().contains("Dancarino"))) {
-			for (Map.Entry e : pedidos.entrySet()) {
-				HashMap<String, Object> hashMap = (HashMap<String, Object>)e.getValue();
-				((Semaphore)hashMap.get("semaphoreCanRead")).release();
-				
-				((Semaphore)hashMap.get("semaphoreElementosLivres")).release();
-			}
-		}
-	}
-	
+
 	private void releaseCanReadDancarinos() {
 		if(pedidos.entrySet().stream().anyMatch(p -> p.getKey().contains("Dancarino"))) {
 			for (Map.Entry e : pedidos.entrySet()) {
@@ -129,7 +124,6 @@ public class CanalComunicacoes implements Runnable {
 		
 		int pos = map.position();
 		pedidos.get(Thread.currentThread().getName()).put("position", pos);
-		((Semaphore) pedidos.get(Thread.currentThread().getName()).get("semaphoreElementosLivres")).release();
 		acessoResourceLer.release();
 		return new Mensagem(numero, ordem);
 
@@ -152,7 +146,6 @@ public class CanalComunicacoes implements Runnable {
 		args.put("position", posPut);
 		args.put("semaphore", new Semaphore(0));
 		args.put("semaphoreCanRead", new Semaphore(0));
-		args.put("semaphoreElementosLivres", new Semaphore(MAX_BUFFER / 8));
 
 		pedidos.put(Thread.currentThread().getName(), args);
 		
@@ -165,6 +158,7 @@ public class CanalComunicacoes implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		String idx = "";
+		
 		while (true) {
 			switch (estado) {
 			case "dormir":
@@ -185,8 +179,10 @@ public class CanalComunicacoes implements Runnable {
 				}
 				break;
 			case "ler":
-				((Semaphore) pedidos.get(idx).get("semaphore")).release();
-
+				
+				if(pedidos.entrySet().stream().filter(p-> p.getKey().contains("Dancarino")).allMatch(p->((Semaphore)p.getValue().get("semaphore")).availablePermits() == 0)) {
+					pedidos.entrySet().stream().filter(p-> p.getKey().contains("Dancarino")).forEach(p->((Semaphore)p.getValue().get("semaphore")).release());
+				}
 				estado = "dormir";
 				break;
 			case "escrever":
@@ -201,6 +197,7 @@ public class CanalComunicacoes implements Runnable {
 					estado = "dormir";
 				}
 				break;
+		
 			}
 		}
 	}
